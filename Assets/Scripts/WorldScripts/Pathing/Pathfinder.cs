@@ -17,7 +17,7 @@ public class Pathfinder : MonoBehaviour
     private static bool pathingThreadRunning = false;
     private static int threadsRunning = 0;
 
-    private static Stopwatch timeCard;
+    //private static Stopwatch timeCard;
 
     void Awake()
     {
@@ -25,8 +25,8 @@ public class Pathfinder : MonoBehaviour
         pathingQueue = new Queue<E_GridedMovement>();
         queueMembers = new HashSet<E_GridedMovement>();
         threads = new List<Thread>();
-        timeCard = new Stopwatch();
-        timeCard.Start();
+        //timeCard = new Stopwatch();
+        //timeCard.Start();
     }
 
     /*
@@ -59,7 +59,7 @@ public class Pathfinder : MonoBehaviour
                 //StartCoroutine(Dequeue());   
                 RunPathingThread();
             }
-            character.PathObj.timeCard = timeCard.ElapsedMilliseconds;
+            //character.PathObj.timeCard = timeCard.ElapsedMilliseconds;
             character.PathObj.SetRecentNode();
             return true;
         }
@@ -95,17 +95,17 @@ public class Pathfinder : MonoBehaviour
 	}
 
 
-    //TURNS OUT I PROBABLY DON'T NEED THIS SHIT OOPS
-    public static int getNodesElapsed(E_GridedMovement c)
-    {
-        //UnityEngine.Debug.Log("Start: " + (c.PathObj.timeCard / 1000f) + " || CurrentTime: " + (timeCard.ElapsedMilliseconds / 1000f) + " || Elapsed: " + ((timeCard.ElapsedMilliseconds - c.PathObj.timeCard)  / 1000f));
-        return (int)((c.Speed * (timeCard.ElapsedMilliseconds - c.PathObj.timeCard) / 1000f) / WorldManager._WORLD.TileSize);
-    }
+    ////TURNS OUT I PROBABLY DON'T NEED THIS SHIT OOPS
+    //public static int getNodesElapsed(E_GridedMovement c)
+    //{
+    //    //UnityEngine.Debug.Log("Start: " + (c.PathObj.timeCard / 1000f) + " || CurrentTime: " + (timeCard.ElapsedMilliseconds / 1000f) + " || Elapsed: " + ((timeCard.ElapsedMilliseconds - c.PathObj.timeCard)  / 1000f));
+    //    return (int)((c.Speed * (timeCard.ElapsedMilliseconds - c.PathObj.timeCard) / 1000f) / WorldManager._WORLD.TileSize);
+    //}
 
-    public float getTimeCard()
-    {
-        return timeCard.ElapsedMilliseconds;
-    }
+    //public float getTimeCard()
+    //{
+    //    return timeCard.ElapsedMilliseconds;
+    //}
 
     private void RunPathingThread()
     {

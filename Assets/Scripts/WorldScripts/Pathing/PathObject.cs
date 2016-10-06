@@ -12,7 +12,7 @@ public class PathObject
     private PriorityQueue<SearchNode, int> openSet;
 
     public E_GridedMovement gridEntity { get; set; }
-    public float timeCard { get; set; }
+    //public float timeCard { get; set; }
 
     public PathObject()
     {
