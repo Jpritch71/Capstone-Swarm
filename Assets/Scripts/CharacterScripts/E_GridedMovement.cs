@@ -197,6 +197,7 @@ public abstract class E_GridedMovement : TaggableEntity
                     ++c;
                 }
                 wayPointNodes = pathObj.path;
+                print("Algorithm Time: " + pathObj.AlgorithmTime);
                 findingPath = false;
                 _CancelPath = false;
 
@@ -356,7 +357,7 @@ public abstract class E_GridedMovement : TaggableEntity
 	public float BaseSpeed
 	{
 		get { return baseSpeed; }
-		protected set
+		set
 		{
 			baseSpeed = value;
 		}

@@ -42,7 +42,16 @@ public class Pathfinder : MonoBehaviour
 		}	
 	}
 
-    public bool GetPathAStar(ref E_GridedMovement character)
+    /// <summary>
+    /// Grid Mover requests a path from Pathfinder, if it has already requested one, the method returns fals.
+    /// Otherwise, the Grid Mover is added to the Queue
+    /// If the pathfinder is not currently running, the thread is started.
+    /// Set the most recent node now in case it can't be retrieved in the thread (FIX THIS)
+    /// </summary>
+    /// <param name="character">reference to the Grid Mover requesting a path</param>
+    /// 
+    /// /// <returns>bool</returns>
+    public bool GetPathAStar(ref E_GridedMovement character) 
     {
         if (!queueMembers.Contains(character))
         {
@@ -71,10 +80,7 @@ public class Pathfinder : MonoBehaviour
         {
             pathingThreadRunning = true; 
             while (pathingThreadRunning)
-            {
-                Stopwatch timer = new Stopwatch();
-                timer.Start();
-
+            {             
                 if (pathingQueue.Count > 0)
                 {
                     DoAStar();
@@ -83,12 +89,14 @@ public class Pathfinder : MonoBehaviour
                     pathingThreadRunning = false;
             }    
         });
-        //threads.Add(pathingThread);
         pathingThread.Start();
     }
 
+    private static PriorityQueue<SearchNode, int> open;
     private void DoAStar()
     {
+        Stopwatch timer = new Stopwatch();
+        timer.Start();
         E_GridedMovement c = null;
         lock (pathingQueue)
         {
@@ -103,8 +111,11 @@ public class Pathfinder : MonoBehaviour
 
         HashSet<Node> closed = new HashSet<Node>();
         SearchNode current, searchStart, temp;
-
-        PriorityQueue<SearchNode, int> open = c.PathObj.OpenSet;
+        
+        if(open == null)
+            open = new PriorityQueue<SearchNode, int>(WorldManager._WORLD.WorldNodeCount());
+        else
+            open.ResetQueue();
         searchStart = c.PathObj.startNode.SearchableNode;
 
         if (!open.InsertElement(searchStart))
@@ -122,10 +133,10 @@ public class Pathfinder : MonoBehaviour
             if (current.PairedNode == c.PathObj.targetNode)
             {
                 c.PathObj.setPath(RetracePath(searchStart, current));
+                c.PathObj.AlgorithmTime = timer.ElapsedMilliseconds;
                 //UnityEngine.Debug.Log("path found");
                 closed = null;
-                current = null;
-                open.ResetQueue();
+                current = null;                
                 return;
             }
 

@@ -9,7 +9,8 @@ public class PathObject
     public Node startNode { get; set; }
     public Node targetNode { get; set; }
     public int clearance { get; set; }
-    private PriorityQueue<SearchNode, int> openSet;
+
+    public long AlgorithmTime { get; set; }
 
     public E_GridedMovement gridEntity { get; set; }
     //public float timeCard { get; set; }
@@ -33,18 +34,6 @@ public class PathObject
     public List<Node> getPath()
     {
         return path;
-    }
-
-    public PriorityQueue<SearchNode, int> OpenSet
-    {
-        get
-        {
-            if(openSet == null)
-            {
-                openSet = new PriorityQueue<SearchNode, int>(100000);
-            }
-            return openSet;
-        }
     }
 
     public void SetRecentNode()

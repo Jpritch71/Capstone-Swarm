@@ -64,6 +64,7 @@ public class GroupUnit : MonoBehaviour, I_Entity
     void Awake()
     {
         characterCollider = GetComponent<CapsuleCollider>();
+        print(this.name + " " + characterCollider.bounds.extents.y);
         collisionAvoidanceCollider = GetComponent<SphereCollider>();
     }
 
@@ -181,8 +182,8 @@ public class GroupUnit : MonoBehaviour, I_Entity
             Pos = new Vector3(transform.position.x, hit.point.y, transform.position.z);
             groundYPos = hit.point.y;
         }
-        else
-            Debug.Log("Where is the ground?");
+        //else
+            //Debug.Log("Where is the ground?");
         Pos = new Vector3(transform.position.x, groundYPos, transform.position.z);
 
         MovementOrders = Vector3.zero;
