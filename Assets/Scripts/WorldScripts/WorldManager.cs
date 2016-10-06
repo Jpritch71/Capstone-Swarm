@@ -1,0 +1,35 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class WorldManager : ScriptableObject
+{
+    private static WorldGrid WORLD;
+    private static System.Random random;
+
+    public static int mapFlag = (1 << 8) | (1 << 9) | (1 << 13);
+    public static int entityFlag = (1 << 11) | (1 << 12);   
+
+    public static System.Random Random
+    {
+        get
+        {
+            if (random == null)
+            {
+                random = new System.Random();
+            }
+            return random;
+        }
+    }
+
+    public static WorldGrid _WORLD
+    {
+        get
+        {
+            if (WORLD == null)
+            {
+                WORLD = GameObject.Find("PlayableArea").GetComponent<WorldGrid>();
+            }
+            return WORLD;
+        }
+    }
+}
