@@ -237,24 +237,6 @@ public class WorldGrid : MonoBehaviour
         return GetTile(hitIn.point);
 	}
 
-    //    public Node GetTile(int x, int z)
-    //    {
-    //#if Unity_Editor
-    //            if (tiles == null)
-    //    			Debug.Break ();
-    //#endif
-    //        if (x < 0)
-    //            x = 0;
-    //        if (x >= X_DIM)
-    //            x = (int)X_DIM - 1;
-
-    //        if (z < 0)
-    //            z = 0;
-    //        if (z >= Y_DIM)
-    //            z = (int)Y_DIM - 1;
-    //        return tiles[x, z];
-    //    }
-
     public Node GetTile(int x, int z)
     {
         try
@@ -263,16 +245,15 @@ public class WorldGrid : MonoBehaviour
         }
         catch (System.IndexOutOfRangeException e)
         {
-            //print("out of bounds");
             if (x < 0)
                 x = 0;
             else if (x >= X_DIM)
-                x = (int)X_DIM - 1;
+                x = X_DIM - 1;
 
             if (z < 0)
                 z = 0;
             else if (z >= Y_DIM)
-                z = (int)Y_DIM - 1;
+                z = Y_DIM - 1;
             return tiles[x, z];
         }
     }
@@ -284,11 +265,11 @@ public class WorldGrid : MonoBehaviour
 
 	public int WorldXToTileX(float xCoordIn)
 	{
-		return (int)Mathf.Clamp((int)(Mathf.Abs(-pos.x + xCoordIn) / (tileSize)), 0, X_DIM - 1);
+		return Mathf.Clamp((int)(Mathf.Abs(-pos.x + xCoordIn) / (tileSize)), 0, X_DIM - 1);
 	}
 
 	public int WorldZToTileZ(float zCoordIn)
 	{
-		return (int)Mathf.Clamp((int)(Mathf.Abs(-pos.z + zCoordIn) / (tileSize)), 0, Y_DIM - 1);
+		return Mathf.Clamp((int)(Mathf.Abs(-pos.z + zCoordIn) / (tileSize)), 0, Y_DIM - 1);
 	}
 }
