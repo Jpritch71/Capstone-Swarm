@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GrouchoController : MonoBehaviour
+public class OrkSquadController : MonoBehaviour
 {
     private RaycastHit[] hits; //variable for storing temporary RaycastHit array
     private RaycastHit hit;
@@ -10,8 +10,8 @@ public class GrouchoController : MonoBehaviour
     void Awake()
     {
         MovementComponent = GetComponent<E_GridedMovement>();
-        //AnimController = new PlayerAnimController(GameObject.Find("PlayerUnit").GetComponent<Animation>());
-        //stateController = new StateMachine(MovementComponent, new S_Player_Idle(this));
+        //AnimController = new GrouchoAnimController(GameObject.Find("Groucho").GetComponent<Animator>());
+        //stateController = new StateMachine(MovementComponent, new S_Ork_Idle(this));
 
     }
 
@@ -23,6 +23,7 @@ public class GrouchoController : MonoBehaviour
 
         if (Input.GetMouseButton(0) && MovementComponent.CanMove)
         {
+
         }
         else if (Input.GetMouseButtonUp(0) || !MovementComponent.CanMove)
         {
@@ -48,7 +49,7 @@ public class GrouchoController : MonoBehaviour
 
     #region Components
     public E_GridedMovement MovementComponent { get; private set; }
-    //public PlayerAnimController AnimController { get; private set; }
+    //public GrouchoAnimController AnimController { get; private set; }
     //public StateMachine stateController { get; private set; }
     #endregion
 }

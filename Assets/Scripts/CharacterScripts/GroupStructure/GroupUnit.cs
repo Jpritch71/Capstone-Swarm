@@ -52,6 +52,17 @@ public class GroupUnit : MonoBehaviour, I_Entity
 
     protected bool findingPath = false; //flag indicates whether this character is already looking for a path or waiting in the queue
     protected bool moving = false;
+    public bool Moving
+    {
+        get
+        {
+            return moving;
+        }
+        protected set
+        {
+            moving = value;
+        }
+    }
     protected bool targetReached = false;
 
     protected bool canMove = true;
