@@ -11,7 +11,6 @@ public class EntityGridMover : E_GridedMovement
 
     protected override void InitAwake()
     {
-        print("we awaked");
         unitCollider = GetComponent<CapsuleCollider>();
         thruster = GetComponent<Rigidbody>();
         BaseSpeed = 15f;

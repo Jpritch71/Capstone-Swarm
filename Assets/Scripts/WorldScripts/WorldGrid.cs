@@ -6,7 +6,8 @@ public class WorldGrid : MonoBehaviour
 	private Terrain worldTerrain;
 
 	private float tileSize; //size of the tile representing each node
-	private Vector2 gridDimension; //Grid dimensions, ensure that this is a multiple of 2
+	private Vector2 gridDimension;
+    private int X_DIM, Y_DIM; //Grid dimensions, ensure that this is a multiple of 2
 	private Node[,] tiles; //list of nodes/tiles 
     private GameObject boundaryMarker;
     private Vector3 pos;
@@ -34,16 +35,18 @@ public class WorldGrid : MonoBehaviour
 		tileSize = 1f; 
 		gridDimension = new Vector2 (Mathf.Ceil(Mathf.Abs(pos.x - boundaryMarker.transform.position.x)) / tileSize,
                                      Mathf.Ceil(Mathf.Abs(pos.z - boundaryMarker.transform.position.z)) / tileSize);
-		tiles = new Node[(int)gridDimension [0], (int)gridDimension [1]];
+        X_DIM = (int)(Mathf.Ceil(Mathf.Abs(pos.x - boundaryMarker.transform.position.x)) / tileSize);
+        Y_DIM = (int)(Mathf.Ceil(Mathf.Abs(pos.z - boundaryMarker.transform.position.z)) / tileSize);
+        tiles = new Node[X_DIM, Y_DIM];
 		//if(worldTerrain != null)
 			//worldTerrain.terrainData.size = new Vector3 (tileSize * gridDimension.x, 10f, tileSize * gridDimension.y);
 
 
 		GameObject g;
 		float corner1 = 0, corner2 = 0, corner3 = 0, corner4 = 0;
-		for(int x = 0; x < this.gridDimension[0]; x++)
+		for(int x = 0; x < this.X_DIM; x++)
 		{
-			for(int z = 0; z < this.gridDimension[1]; z++)
+			for(int z = 0; z < this.Y_DIM; z++)
 			{
 				//----=======--------=======--------=======--------=======--------=======--------=======--------=======--------=======----
 				//node Center ----=======--------=======--------=======--------=======--------=======--------=======--------=======--------=======----
@@ -151,9 +154,9 @@ public class WorldGrid : MonoBehaviour
 		//Material blackMaterial = new Material(tile.transform.Find("Cube").GetComponent<Renderer>().sharedMaterial);
 
 		//blackMaterial.color = Color.black;
-		for(int x = 0; x < gridDimension[0]; x++)
+		for(int x = 0; x < X_DIM; x++)
 		{
-			for(int z = 0; z < gridDimension[1]; z++)
+			for(int z = 0; z < Y_DIM; z++)
 			{
 				tiles[x, z].EvaluateNeighbors();
 				if(debugMode)
@@ -180,133 +183,7 @@ public class WorldGrid : MonoBehaviour
 		} 
 		this.gameObject.SetActive(false);
 		this.gameObject.SetActive(true);
-
-        //Node n = null;
-        //System.GC.Collect();
-        //// run once outside of loop to avoid initialization costs
-        //System.Diagnostics.Stopwatch sw;
-        //sw = System.Diagnostics.Stopwatch.StartNew();
-        //for (int i = 0; i < 10000000; i++)
-        //{
-        //    if(Random.Range(0f, 1f) < .01f)
-        //    {
-        //        n = GetTile(50, 1000);
-        //    }
-        //    else
-        //        n = GetTile(50, 51);
-        //}
-        //sw.Stop();
-        //print((sw.ElapsedMilliseconds).ToString());
-
-        //sw = System.Diagnostics.Stopwatch.StartNew();
-        //for (int i = 0; i < 10000000; i++)
-        //{
-        //    if (Random.Range(0f, 1f) < .01f)
-        //    {
-        //        n = GetTile(50, 1000);
-        //    }
-        //    else
-        //        n = GetTile(50, 51);
-        //}
-        //sw.Stop();
-        //print((sw.ElapsedMilliseconds).ToString());
-
-        //sw = System.Diagnostics.Stopwatch.StartNew();
-        //for (int i = 0; i < 10000000; i++)
-        //{
-        //    if (Random.Range(0f, 1f) < .01f)
-        //    {
-        //        n = GetTile(50, 1000);
-        //    }
-        //    else
-        //        n = GetTile(50, 51);
-        //}
-        //sw.Stop();
-        //print((sw.ElapsedMilliseconds).ToString());
-
-        //print("end 1%");
-
-        //sw = System.Diagnostics.Stopwatch.StartNew();
-        //for (int i = 0; i < 10000000; i++)
-        //{
-        //    if (Random.Range(0f, 1f) < .05f)
-        //    {
-        //        n = GetTile(50, 1000);
-        //    }
-        //    else
-        //        n = GetTile(50, 51);
-        //}
-        //sw.Stop();
-        //print((sw.ElapsedMilliseconds).ToString());
-
-        //sw = System.Diagnostics.Stopwatch.StartNew();
-        //for (int i = 0; i < 10000000; i++)
-        //{
-        //    if (Random.Range(0f, 1f) < .05f)
-        //    {
-        //        n = GetTile(50, 1000);
-        //    }
-        //    else
-        //        n = GetTile(50, 51);
-        //}
-        //sw.Stop();
-        //print((sw.ElapsedMilliseconds).ToString());
-
-        //sw = System.Diagnostics.Stopwatch.StartNew();
-        //for (int i = 0; i < 10000000; i++)
-        //{
-        //    if (Random.Range(0f, 1f) < .05f)
-        //    {
-        //        n = GetTile(50, 1000);
-        //    }
-        //    else
-        //        n = GetTile(50, 51);
-        //}
-        //sw.Stop();
-        //print((sw.ElapsedMilliseconds).ToString());
-
-        //print("end 5%");
-
-        //sw = System.Diagnostics.Stopwatch.StartNew();
-        //for (int i = 0; i < 10000000; i++)
-        //{
-        //    if (Random.Range(0f, 1f) < .1f)
-        //    {
-        //        n = GetTile(50, 1000);
-        //    }
-        //    else
-        //        n = GetTile(50, 51);
-        //}
-        //sw.Stop();
-        //print((sw.ElapsedMilliseconds).ToString());
-
-        //sw = System.Diagnostics.Stopwatch.StartNew();
-        //for (int i = 0; i < 10000000; i++)
-        //{
-        //    if (Random.Range(0f, 1f) < .1f)
-        //    {
-        //        n = GetTile(50, 1000);
-        //    }
-        //    else
-        //        n = GetTile(50, 51);
-        //}
-        //sw.Stop();
-        //print((sw.ElapsedMilliseconds).ToString());
-
-        //sw = System.Diagnostics.Stopwatch.StartNew();
-        //for (int i = 0; i < 10000000; i++)
-        //{
-        //    if (Random.Range(0f, 1f) < .1f)
-        //    {
-        //        n = GetTile(50, 1000);
-        //    }
-        //    else
-        //        n = GetTile(50, 51);
-        //}
-        //sw.Stop();
-        //print((sw.ElapsedMilliseconds).ToString());
-
-        //print("end 10%");
+        print(WorldNodeCount());
     }
 
     void Update()
@@ -319,9 +196,9 @@ public class WorldGrid : MonoBehaviour
 
         //if (false)
         //{
-        //    for (int x = 0; x < gridDimension[0]; x++)
+        //    for (int x = 0; x < X_DIM; x++)
         //    {
-        //        for (int z = 0; z < gridDimension[1]; z++)
+        //        for (int z = 0; z < Y_DIM; z++)
         //        {
         //            Debug.DrawRay(tiles[x, z].Pos, Vector3.up, tiles[x, z].flag);
         //        }
@@ -336,6 +213,11 @@ public class WorldGrid : MonoBehaviour
 			return gridDimension;
 		}
 	}
+
+    public int WorldNodeCount()
+    {
+        return (X_DIM * Y_DIM);
+    }
 
 	public float TileSize
 	{
@@ -355,24 +237,6 @@ public class WorldGrid : MonoBehaviour
         return GetTile(hitIn.point);
 	}
 
-    //    public Node GetTile(int x, int z)
-    //    {
-    //#if Unity_Editor
-    //            if (tiles == null)
-    //    			Debug.Break ();
-    //#endif
-    //        if (x < 0)
-    //            x = 0;
-    //        if (x >= gridDimension[0])
-    //            x = (int)gridDimension[0] - 1;
-
-    //        if (z < 0)
-    //            z = 0;
-    //        if (z >= gridDimension[1])
-    //            z = (int)gridDimension[1] - 1;
-    //        return tiles[x, z];
-    //    }
-
     public Node GetTile(int x, int z)
     {
         try
@@ -381,16 +245,15 @@ public class WorldGrid : MonoBehaviour
         }
         catch (System.IndexOutOfRangeException e)
         {
-            //print("out of bounds");
             if (x < 0)
                 x = 0;
-            else if (x >= gridDimension[0])
-                x = (int)gridDimension[0] - 1;
+            else if (x >= X_DIM)
+                x = X_DIM - 1;
 
             if (z < 0)
                 z = 0;
-            else if (z >= gridDimension[1])
-                z = (int)gridDimension[1] - 1;
+            else if (z >= Y_DIM)
+                z = Y_DIM - 1;
             return tiles[x, z];
         }
     }
@@ -402,11 +265,11 @@ public class WorldGrid : MonoBehaviour
 
 	public int WorldXToTileX(float xCoordIn)
 	{
-		return (int)Mathf.Clamp((int)(Mathf.Abs(-pos.x + xCoordIn) / (tileSize)), 0, gridDimension[0] - 1);
+		return Mathf.Clamp((int)(Mathf.Abs(-pos.x + xCoordIn) / (tileSize)), 0, X_DIM - 1);
 	}
 
 	public int WorldZToTileZ(float zCoordIn)
 	{
-		return (int)Mathf.Clamp((int)(Mathf.Abs(-pos.z + zCoordIn) / (tileSize)), 0, gridDimension[1] - 1);
+		return Mathf.Clamp((int)(Mathf.Abs(-pos.z + zCoordIn) / (tileSize)), 0, Y_DIM - 1);
 	}
 }
