@@ -4,7 +4,7 @@ using System;
 
 public class GrouchoAnimController
 {
-    public Animator grouchAnim;
+    protected Animator grouchAnim;
 
     public GrouchoAnimController(Animator animIn)
     {

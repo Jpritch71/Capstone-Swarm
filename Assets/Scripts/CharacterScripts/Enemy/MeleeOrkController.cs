@@ -7,7 +7,7 @@ public class MeleeOrkController : OrkUnitController
     protected override void InitAwake()
     {
         MovementComponent = GetComponent<GroupUnit>();
-        AnimController = new GrouchoAnimController(GameObject.Find("Groucho").GetComponent<Animator>());
+        AnimController = new GrouchoAnimController(transform.Find("Groucho").GetComponent<Animator>());
         stateController = new StateMachine(MovementComponent, new S_Ork_Idle(this));
     }
 

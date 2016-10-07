@@ -39,7 +39,7 @@ public class S_Player_Running : S_PlayerState
 
     public override void Execute()
     {
-        if (!ownerPlayer.MovementComponent.Moving)
+        if (!ownerPlayer.UnitMovementComponent.Moving)
         {
             SetControllerState(new S_Player_Idle(ownerPlayer));
         }
@@ -70,7 +70,7 @@ public class S_Player_Idle : S_PlayerState
 
     public override void Execute()
     {
-        if (ownerPlayer.MovementComponent.Moving)
+        if (ownerPlayer.UnitMovementComponent.Moving)
         {
             SetControllerState(new S_Player_Running(ownerPlayer));
         }

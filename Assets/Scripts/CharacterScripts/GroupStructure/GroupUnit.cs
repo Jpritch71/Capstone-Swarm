@@ -52,6 +52,9 @@ public class GroupUnit : MonoBehaviour, I_Entity
 
     protected bool findingPath = false; //flag indicates whether this character is already looking for a path or waiting in the queue
     protected bool moving = false;
+
+    protected const float notMovingThresh = .15f;
+    protected float notMovingTime;
     public bool Moving
     {
         get
@@ -60,7 +63,22 @@ public class GroupUnit : MonoBehaviour, I_Entity
         }
         protected set
         {
-            moving = value;
+            if (value == false)
+            {
+                notMovingTime += Time.deltaTime;
+                if (notMovingTime > notMovingThresh)
+                {
+                    moving = false;
+                }
+                else
+                    moving = true;
+            }
+            else
+            {
+                notMovingTime = 0f;
+                moving = true;
+                return;
+            }                        
         }
     }
     protected bool targetReached = false;
@@ -93,6 +111,7 @@ public class GroupUnit : MonoBehaviour, I_Entity
         lastPos = transform.position;
     }
 
+    protected float distance;
     protected virtual void MovementPhase()
     {
         distanceFromCenter = Vector3.Distance(Pos, Squad.CenterOfMass);
@@ -105,7 +124,6 @@ public class GroupUnit : MonoBehaviour, I_Entity
         {
             Align = ((MovementOrders + transform.position) - transform.position).normalized;
             MovementOrders = Vector3.zero;
-            Debug.DrawRay(Pos, Align.normalized * 5f, Color.yellow);
             if (distanceFromCenter > DistanceThreshold)
             {
                 Cohesion = (Squad.CenterOfMass - transform.position).normalized * 1.1f;
@@ -114,11 +132,8 @@ public class GroupUnit : MonoBehaviour, I_Entity
         else if (distanceFromCenter > DistanceThreshold * 2)
         {
             Cohesion = (Squad.CenterOfMass - transform.position).normalized;
-            Debug.DrawRay(transform.position, Vector3.up * 6f, Color.cyan);
         }
-        Debug.DrawRay(Pos, (Cohesion).normalized * 5f, Color.blue);
 
-        float distance;
         //are there any detected units within the distance separation-trigger area
         if (neighborUnits.Count > 0)
         {
@@ -128,7 +143,6 @@ public class GroupUnit : MonoBehaviour, I_Entity
                 if (distance < distanceThreshold)
                     Separation += (unit.Pos - transform.position);
             }
-            Debug.DrawRay(Pos, Separation.normalized * 5f, Color.red);
         }
         //are there any detected obstacles within the distance separation-trigger area
         if (neighborColliders.Count > 0)
@@ -145,10 +159,9 @@ public class GroupUnit : MonoBehaviour, I_Entity
             Separation /= (neighborUnits.Count + neighborColliders.Count);
             Separation *= -1f;
             Separation = Separation.normalized;
-            Debug.DrawRay(Pos, Separation.normalized * 5f, Color.red);
         }
-        RaycastHit hit;
 
+        RaycastHit hit;
         //look for obstacles directly in front of the unit, try to avoid
         if (Physics.Raycast(transform.position, transform.forward, out hit, distanceThreshold / 2f, WorldGrid.mapFlag, QueryTriggerInteraction.Ignore))
         {
@@ -157,27 +170,25 @@ public class GroupUnit : MonoBehaviour, I_Entity
             Debug.DrawRay(Pos, Avoid.normalized * distanceThreshold / 2f, Color.green);
 
         }
-        Debug.DrawRay(Pos, transform.forward * 5.5f, Color.magenta);
 
-        Debug.DrawRay(Pos, (Squad.CenterOfMass - transform.position) * 5.5f, (Color.black));
         if (Physics.Raycast(transform.position, (Squad.CenterOfMass - transform.position), Vector3.Distance(Squad.CenterOfMass, transform.position), WorldGrid.mapFlag, QueryTriggerInteraction.Ignore))
             Cohesion *= .25f;
 
-        if (moving)
+        if (Moving)
             MovementOrders += Avoid;
         //MovementOrders += Align;
         MovementOrders += Cohesion * (Mathf.Clamp(distanceFromCenter + DistanceThreshold, 0, 20f) / 20f) * .1f;
         MovementOrders += Separation * .3f;
-
+               
         SetFacingDirection();
         if (MovementOrders != Vector3.zero)
         {
             transform.position += transform.forward.normalized * (8.9f + 0) * Time.deltaTime;// (1.5f * (Mathf.Clamp(distanceFromCenter, 0, 20f) / 20f))) * Time.deltaTime;
-            moving = true;
+            Moving = true;
         }
         else
         {
-            moving = false;
+            Moving = false;
         }
 
         hits = Physics.SphereCastAll(transform.position + (Vector3.up * characterCollider.bounds.size.y), characterCollider.radius * .1f, Vector3.down, 200f, (1 << 8));
@@ -196,7 +207,6 @@ public class GroupUnit : MonoBehaviour, I_Entity
         //else
             //Debug.Log("Where is the ground?");
         Pos = new Vector3(transform.position.x, groundYPos, transform.position.z);
-
         MovementOrders = Vector3.zero;
     }
 

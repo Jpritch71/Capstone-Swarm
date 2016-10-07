@@ -51,7 +51,6 @@ public class S_Ork_Running : S_OrkState
 
     public override void OnStart()
     {
-        ownerOrk.msg("RUNNING");
         ownerOrk.AnimController.StartRunning();
     }
 
@@ -83,7 +82,6 @@ public class S_Ork_Idle : S_OrkState
 
     public override void OnStart()
     {
-        ownerOrk.msg("IDLE");
         ownerOrk.AnimController.StartIdle();
     }
 

@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     void Awake ()
     {
         MovementComponent = GetComponent<PlayerMovement>();
+        UnitMovementComponent = GameObject.Find("PlayerUnit").GetComponentInChildren<GroupUnit>();
         MovementComponent.BaseSpeed = 10f;
         AnimController = new PlayerAnimController(GameObject.Find("PlayerUnit").GetComponentInChildren<Animation>());
         stateController = new StateMachine(MovementComponent, new S_Player_Idle(this));
@@ -53,6 +54,7 @@ public class PlayerController : MonoBehaviour
 
     #region Components
     public PlayerMovement MovementComponent { get; private set; }
+    public GroupUnit UnitMovementComponent { get; private set; }
     public PlayerAnimController AnimController { get; private set; }
     public StateMachine stateController { get; private set; }
     #endregion
