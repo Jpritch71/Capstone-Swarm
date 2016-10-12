@@ -11,22 +11,12 @@ public interface I_Entity
     void IncurDamage(float damageIn);
     void DeathAction();
 
-    float groundPosY
-    {
-        get;
-    }
-
-    /*
-     * Use this to set or get the character's position
-     * Get - Gets the current position
-     * Set - Sets the position, offseting the value so that the collider is resting on the ground.
-     * */
-    Vector3 Pos
-    {
-        get;
-    }
-
     GameObject _AttachedGameObject
+    {
+        get;
+    }
+
+    I_Movement _MovementComponent
     {
         get;
     }

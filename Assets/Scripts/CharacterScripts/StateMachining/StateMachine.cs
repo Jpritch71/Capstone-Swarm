@@ -7,22 +7,22 @@ public class StateMachine
 {
     public I_State CurrentState { get; protected set; }
     public I_State PreviousState { get; protected set; }
-    public I_Entity MachineEntity { get; protected set; }
+    public I_Controller MachineController { get; protected set; }
 
     protected List<I_GlobalState> globalStates;
 
-    public StateMachine(I_Entity entityIn, I_State startState)
+    public StateMachine(I_Controller entityIn, I_State startState)
     {
-        MachineEntity = entityIn;
+        MachineController = entityIn;
         CurrentState = startState;
         CurrentState.OnStart();
 
         globalStates = null;
     }
 
-    public StateMachine(I_Entity entityIn, I_State startState, List<I_State> globals)
+    public StateMachine(I_Controller controllerIn, I_State startState, List<I_State> globals)
     {
-        MachineEntity = entityIn;
+        MachineController = controllerIn;
         CurrentState = startState;
         CurrentState.OnStart();
 
@@ -40,7 +40,7 @@ public class StateMachine
                 if (gState.IsStateValid())
                 {
                     SetCurrentState(gState);
-                    return;
+                    return; 
                 }
             }
         }

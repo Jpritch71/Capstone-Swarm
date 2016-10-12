@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
-public abstract class TaggableEntity : MonoBehaviour, I_Entity
+public abstract class TaggableEntity : Initializer, I_Entity
 {
     public bool Killable { get; protected set; }
     public bool Dead { get; protected set; }
@@ -25,9 +26,6 @@ public abstract class TaggableEntity : MonoBehaviour, I_Entity
     {
         Killable = true;
     }
-
-    protected abstract void InitAwake();
-    protected abstract void InitStart();
 
     public Vector3 Pos { get; protected set; }
     public float groundPosY { get; protected set; }
@@ -64,19 +62,21 @@ public abstract class TaggableEntity : MonoBehaviour, I_Entity
     }
 
     public virtual void DeathAction()
-    {
-        //print("deaths, tag count: " + Tags.Count);
+    {   
         foreach (I_EntityTag t in Tags)
         {
             t.TagAction();
         }
+        DeathWork();
     }
+    protected abstract void DeathWork();
 
     public void TagEntity(I_EntityTag tagIn)
     {
         Tags.Add(tagIn);
     }
 
+    #region Components
     public GameObject _AttachedGameObject
     {
         get
@@ -84,4 +84,10 @@ public abstract class TaggableEntity : MonoBehaviour, I_Entity
             return this.gameObject;
         }
     }
+
+    public abstract I_Movement _MovementComponent
+    {
+        get;
+    }
+    #endregion
 }

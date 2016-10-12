@@ -10,7 +10,7 @@ GameObject:
   - 4: {fileID: 458486}
   - 33: {fileID: 3373682}
   - 23: {fileID: 2351000}
-  - 65: {fileID: 65000011825268942}
+  - 64: {fileID: 64000010393586864}
   m_Layer: 13
   m_Name: mountainRock2
   m_TagString: Untagged
@@ -78,8 +78,8 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 115198}
   m_IsPrefabParent: 1
---- !u!65 &65000011825268942
-BoxCollider:
+--- !u!64 &64000010393586864
+MeshCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
@@ -88,5 +88,5 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 5.797721, y: 5.242752, z: 4.852953}
-  m_Center: {x: -0.003421545, y: 0.15892804, z: 2.2951784}
+  m_Convex: 0
+  m_Mesh: {fileID: 4300000, guid: 02f0209e3ac493448991310d5094b27d, type: 3}

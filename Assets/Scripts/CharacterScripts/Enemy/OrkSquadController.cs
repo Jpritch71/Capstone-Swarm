@@ -1,19 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
-public class OrkSquadController : MonoBehaviour
+public class OrkSquadController : SquadController
 {
     private RaycastHit[] hits; //variable for storing temporary RaycastHit array
     private RaycastHit hit;
-
-    // Use this for initialization
-    void Awake()
-    {
-        MovementComponent = GetComponent<E_GridedMovement>();
-        //AnimController = new GrouchoAnimController(GameObject.Find("Groucho").GetComponent<Animator>());
-        //stateController = new StateMachine(MovementComponent, new S_Ork_Idle(this));
-
-    }
 
     // Update is called once per frame
     void Update()
@@ -21,15 +13,15 @@ public class OrkSquadController : MonoBehaviour
         //if (stateController != null)
         //    stateController.ExecuteUpdate(); //update State Machine
 
-        if (Input.GetMouseButton(0) && MovementComponent.CanMove)
+        if (Input.GetMouseButton(0) && C_Movement.CanMove)
         {
 
         }
-        else if (Input.GetMouseButtonUp(0) || !MovementComponent.CanMove)
+        else if (Input.GetMouseButtonUp(0) || !C_Movement.CanMove)
         {
 
         }
-        if (Input.GetMouseButtonDown(1) && MovementComponent.CanMove)
+        if (Input.GetMouseButtonDown(1) && C_Movement.CanMove)
         {
             hits = Physics.RaycastAll(Camera.main.ScreenToWorldPoint(Input.mousePosition), Camera.main.ScreenPointToRay(Input.mousePosition).direction, Mathf.Infinity, (1 << 8) + (1 << 9));
 
@@ -42,14 +34,17 @@ public class OrkSquadController : MonoBehaviour
                         hit = hits[x];
                 }
                 //marker.transform.position = hit.point;
-                MovementComponent.SetPathToPoint(hit.point);
+                C_GridMovement.SetPathToPoint(hit.point);
             }
         }
     }
 
+    public override void LoadStats()
+    {
+        C_GridMovement.BaseSpeed = 9f;
+    }
+
     #region Components
-    public E_GridedMovement MovementComponent { get; private set; }
-    //public GrouchoAnimController AnimController { get; private set; }
-    //public StateMachine stateController { get; private set; }
+    public GrouchoAnimController AnimController { get; private set; }
     #endregion
 }

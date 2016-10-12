@@ -12,7 +12,7 @@ public class PathObject
 
     public long AlgorithmTime { get; set; }
 
-    public E_GridedMovement gridEntity { get; set; }
+    public A_GridMover gridEntity { get; set; }
     //public float timeCard { get; set; }
 
     public PathObject()
