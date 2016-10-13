@@ -2,13 +2,8 @@
 using System.Collections.Generic;
 using System;
 
-public abstract class TaggableEntity : Initializer, I_Entity
+public abstract class TaggableEntity : Entity
 {
-    public bool Killable { get; protected set; }
-    public bool Dead { get; protected set; }
-    public float BaseIntegrity { get; private set; }
-    public float Integrity { get; private set; }
-
     private List<I_EntityTag> tags;
     private List<I_EntityTag> Tags
     {
@@ -45,7 +40,7 @@ public abstract class TaggableEntity : Initializer, I_Entity
         Killable = true;
     }
 
-    public void IncurDamage(float damageIn)
+    public override void IncurDamage(float damageIn)
     {
         if (!Killable)
         {
@@ -61,7 +56,7 @@ public abstract class TaggableEntity : Initializer, I_Entity
         }
     }
 
-    public virtual void DeathAction()
+    public override void DeathAction()
     {   
         foreach (I_EntityTag t in Tags)
         {
@@ -75,19 +70,27 @@ public abstract class TaggableEntity : Initializer, I_Entity
     {
         Tags.Add(tagIn);
     }
+}
 
-    #region Components
-    public GameObject _AttachedGameObject
+
+public abstract class Entity : Initializer, I_Entity
+{
+    public int Unique_ID { get; private set; }
+
+    public bool Killable { get; protected set; }
+    public bool Dead { get; protected set; }
+    public float BaseIntegrity { get; protected set; }
+    public float Integrity { get; protected set; }
+
+    public Entity()
     {
-        get
-        {
-            return this.gameObject;
-        }
+        I_Entity en = this;
+        Unique_ID = EntityManager.GetUniqueID(ref en);
     }
 
-    public abstract I_Movement _MovementComponent
-    {
-        get;
-    }
-    #endregion
+    public abstract void IncurDamage(float damageIn);
+    public abstract void DeathAction();
+
+    public abstract GameObject _AttachedGameObject { get; }
+    public abstract I_Movement _MovementComponent { get; }    
 }

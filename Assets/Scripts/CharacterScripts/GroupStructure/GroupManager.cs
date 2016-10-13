@@ -71,18 +71,24 @@ public class GroupManager : Initializer
     }
 
     protected int unitsLost = 0;
-    public void UnitLost()
+    protected HashSet<int> IDs_OftheLost = new HashSet<int>();
+    public void UnitLost(ref GroupUnitMovement unitIn)
     {
         if (unitsLost == 0)
         {
             StartCoroutine(Regroup());
         }
-        unitsLost++;     
+        if (!IDs_OftheLost.Contains(unitIn.ComponentOwner.C_Entity.Unique_ID))
+        {
+            unitsLost++;
+        } 
     }
 
     public void UnitRecovered()
     {
-
+        unitsLost--;
+        if (unitsLost == 0)
+            StopCoroutine(Regroup());
     }
 
     protected IEnumerator Regroup()

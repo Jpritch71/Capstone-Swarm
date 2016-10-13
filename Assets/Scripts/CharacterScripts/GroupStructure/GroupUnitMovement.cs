@@ -223,7 +223,8 @@ public class GroupUnitMovement : Initializer, I_Movement
 
     protected void Alert_Lost()
     {
-
+        var en = this;
+        Squad.UnitLost(ref en);
     }
 
     public void StartMoving()
@@ -389,5 +390,6 @@ public class GroupUnitMovement : Initializer, I_Movement
 
     #region components
     public Rigidbody thruster { get; set; }
+    public I_Controller ComponentOwner { get; set; }
     #endregion
 }
