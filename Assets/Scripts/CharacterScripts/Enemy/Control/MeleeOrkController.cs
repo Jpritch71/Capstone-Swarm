@@ -6,7 +6,7 @@ public class MeleeOrkController : OrkUnitController
 {
     protected override void InitAwake()
     {
-        C_Movement = GetComponent<GroupUnitMovement>();
+        base.InitAwake();       
         AnimController = new GrouchoAnimController(transform.Find("Groucho").GetComponent<Animator>());
         C_StateMachine = new StateMachine(this, new S_Ork_Idle(this));
     }
@@ -20,6 +20,6 @@ public class MeleeOrkController : OrkUnitController
 
     public override void LoadStats()
     {
-        throw new NotImplementedException();
+        C_Entity = new OrkEntity(this, 100f);
     }
 }

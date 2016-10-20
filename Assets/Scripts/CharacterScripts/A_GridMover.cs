@@ -104,7 +104,7 @@ public abstract class A_GridMover : Initializer, I_Movement
 
     public void SetPathToTarget(I_Entity targetIn)
     {
-        StartCoroutine(StartPathToNode(WorldManager._WORLD.GetTile(targetIn._MovementComponent.Pos)));
+        StartCoroutine(StartPathToNode(WorldManager._WORLD.GetTile(targetIn._Owner_Controller.C_Movement.Pos)));
     }
 
     public void SetPathToPoint(Vector3 pointIn)
@@ -408,10 +408,11 @@ public abstract class A_GridMover : Initializer, I_Movement
         }
     }
 
-    public float groundPosY { get; protected set; }
+    public float GroundPosY { get; protected set; }
 
     #region components
-    public Rigidbody thruster { get; set; }   
+    public Rigidbody thruster { get; set; }
+    public I_Controller Component_Owner { get; set; }
     #endregion
 }
 

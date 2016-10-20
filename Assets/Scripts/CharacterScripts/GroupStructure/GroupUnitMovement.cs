@@ -2,11 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Runtime.CompilerServices;
 
 public class GroupUnitMovement : Initializer, I_Movement
 {
     //speed in meters per second - base speed, speedModification
-    protected float groundYPos;
+    public float GroundPosY { get; protected set; }
     protected Vector3 lastPos;
     protected float distanceFromCenter;
     private float distanceThreshold;
@@ -49,6 +50,7 @@ public class GroupUnitMovement : Initializer, I_Movement
                 if (notMovingTime > notMovingThresh)
                 {
                     moving = false;
+                    thruster.velocity = Vector3.zero;
                 }
                 else
                     moving = true;
@@ -72,9 +74,11 @@ public class GroupUnitMovement : Initializer, I_Movement
 
     protected override void InitAwake()
     {
+        Component_Owner = GetComponent<I_Controller>();
         characterCollider = GetComponent<CapsuleCollider>();
         print(this.name + " " + characterCollider.bounds.extents.y);
         collisionAvoidanceCollider = GetComponent<SphereCollider>();
+        TurnSpeed = 5f;
     }
 
     protected override void InitStart()
@@ -96,7 +100,135 @@ public class GroupUnitMovement : Initializer, I_Movement
     }
 
     protected float distance, closestObstacleDistance, slowDownFactor;
+    protected Vector3 nextPos;
     protected virtual void MovementPhase()
+    {
+        closestObstacleDistance = DistanceThreshold;
+        distanceFromCenter = Vector3.Distance(Pos, Squad.CenterOfMass);
+        Align = Vector3.zero;
+        Cohesion = Vector3.zero;
+        Separation = Vector3.zero;
+        Avoid = Vector3.zero;
+
+        if(MovementOrders != Vector3.zero) //group is moving
+        {
+            Align = ((MovementOrders + transform.position) - Pos) * .05f;
+            MovementOrders = Vector3.zero;
+
+            if (distanceFromCenter > DistanceThreshold)
+            {
+                Cohesion = (Squad.CenterOfMass - transform.position) * .5f;
+            }
+
+            if (neighborUnits.Count > 0)
+            {
+                foreach (GroupUnitMovement unit in neighborUnits)
+                {
+                    distance = Vector3.Distance(unit.Pos, transform.position);
+                    if (distance < DistanceThreshold)
+                    {
+                        Separation += (unit.Pos - transform.position) * .1f;
+                        if (distance < closestObstacleDistance)
+                            closestObstacleDistance = distance;
+                    }
+                }
+            }
+            //are there any detected obstacles within the distance separation-trigger area
+            if (neighborColliders.Count > 0)
+            {
+                foreach (GameObject neighborObject in neighborColliders)
+                {
+                    distance = Vector3.Distance(neighborObject.transform.position, transform.position);
+                    if (distance < distanceThreshold)
+                    {
+                        Separation += (neighborObject.transform.position - transform.position) * 1 / distance;
+                        if (distance < closestObstacleDistance)
+                            closestObstacleDistance = distance;
+                    }
+                }
+            }
+            if (neighborUnits.Count > 0 || neighborColliders.Count > 0)
+            {
+                Separation /= (neighborUnits.Count + neighborColliders.Count);
+                Separation *= -1f;
+                Separation = Separation.normalized;
+            }
+
+            //look for obstacles directly in front of the unit, try to avoid
+            if (Physics.Raycast(transform.position, transform.forward, out hit, distanceThreshold / 2f, WorldGrid.mapFlag, QueryTriggerInteraction.Ignore))
+            {
+                Avoid = (transform.position + (transform.forward * distanceThreshold / 2f) - hit.point);
+                Avoid = Avoid.normalized;
+                Debug.DrawRay(Pos, Avoid.normalized * distanceThreshold / 2f, Color.green);
+            }
+
+            MovementOrders = Align;
+            MovementOrders += Cohesion;
+            MovementOrders += Separation;
+            MovementOrders += Avoid;
+        }
+        else //group is not moving
+        {            
+            if (distanceFromCenter > DistanceThreshold)
+            {
+                Cohesion = (Squad.CenterOfMass - transform.position);
+            }
+
+            if (neighborUnits.Count > 0)
+            {
+                foreach (GroupUnitMovement unit in neighborUnits)
+                {
+                    distance = Vector3.Distance(unit.Pos, transform.position);
+                    if (distance < DistanceThreshold / 2f)
+                    {
+                        Separation += (unit.Pos - transform.position) * .1f;
+                        if (distance < closestObstacleDistance)
+                            closestObstacleDistance = distance;
+                    }
+                }
+            }
+            if (neighborUnits.Count > 0)
+            {
+                Separation /= (neighborUnits.Count);
+                Separation *= -1f;
+                Separation = Separation.normalized;
+            }
+
+            MovementOrders = Cohesion;
+            MovementOrders += Separation;
+        }
+
+        float f = SetFacingDirection();
+
+
+        SpeedModifier = Mathf.Clamp((90 - f) / 90f, .5f, 1f);
+        
+
+        if (MovementOrders != Vector3.zero) //the unit needs to update its position
+        {
+            Moving = true;
+            nextPos = Pos + transform.forward.normalized * Speed * Time.deltaTime;
+
+            hits = Physics.SphereCastAll(nextPos + (Vector3.up * characterCollider.bounds.size.y), characterCollider.radius * .1f, Vector3.down, 5f, (1 << 8));
+            if (hits.Length > 0)
+            {
+                hit = hits[0];
+                for (int x = 1; x < hits.Length; x++)
+                {
+                    if (hit.point.y < hits[x].point.y)
+                        hit = hits[x];
+                }
+                GroundPosY = hit.point.y;
+            }
+            thruster.MovePosition(ColliderOffsetPosition(new Vector3(nextPos.x, GroundPosY, nextPos.z)));
+        }
+        else
+            Moving = false;
+
+        MovementOrders = Vector3.zero;
+    }
+
+    protected virtual void MovementPhase1()
     {
         closestObstacleDistance = DistanceThreshold;
         distanceFromCenter = Vector3.Distance(Pos, Squad.CenterOfMass);
@@ -130,7 +262,7 @@ public class GroupUnitMovement : Initializer, I_Movement
                     Separation += (unit.Pos - transform.position) * .1f;
                     if (distance < closestObstacleDistance)
                         closestObstacleDistance = distance;
-                }               
+                }
             }
         }
         //are there any detected obstacles within the distance separation-trigger area
@@ -164,7 +296,7 @@ public class GroupUnitMovement : Initializer, I_Movement
 
         }
 
-        slowDownFactor = closestObstacleDistance / DistanceThreshold;
+        slowDownFactor = Mathf.Clamp((closestObstacleDistance / DistanceThreshold) - .5f, 0, 1f);
         Avoid *= slowDownFactor;
         Separation *= slowDownFactor;
         //slowDownFactor = Mathf.Clamp(closestObstacleDistance / DistanceThreshold, .5f, SpeedModifier);
@@ -178,8 +310,8 @@ public class GroupUnitMovement : Initializer, I_Movement
         }
         MovementOrders += Align;
         MovementOrders += Cohesion * (Mathf.Clamp(distanceFromCenter + DistanceThreshold, 0, 20f) / 20f) * .1f;
-        MovementOrders += Separation * .3f;
-               
+        MovementOrders += Separation * .1f;
+
         SetFacingDirection();
         if (MovementOrders != Vector3.zero)
         {
@@ -187,7 +319,7 @@ public class GroupUnitMovement : Initializer, I_Movement
             //    SpeedModifier = .9f;
             //else
             //    SpeedModifier = 1.01f;
-  
+
             //SpeedModifier = Mathf.Clamp(closestObstacleDistance / DistanceThreshold, .5f, SpeedModifier);
             transform.position += transform.forward.normalized * Speed * Time.deltaTime;
             Moving = true;
@@ -198,7 +330,7 @@ public class GroupUnitMovement : Initializer, I_Movement
         }
 
 
-        hits = Physics.SphereCastAll(Pos + (characterCollider.bounds.extents.x * transform.forward) + (Vector3.up * characterCollider.bounds.size.y), characterCollider.radius * .1f, Vector3.down, 5f, (1 << 8));
+        hits = Physics.SphereCastAll(Pos + (Vector3.up * characterCollider.bounds.size.y), characterCollider.radius * .1f, Vector3.down, 5f, (1 << 8));
         if (hits.Length > 0)
         {
             hit = hits[0];
@@ -207,13 +339,37 @@ public class GroupUnitMovement : Initializer, I_Movement
                 if (hit.point.y < hits[x].point.y)
                     hit = hits[x];
             }
-            groundYPos = hit.point.y;
+            GroundPosY = hit.point.y;
         }
         else
             //Debug.Log("Where is the ground?");
-        thruster.MovePosition(ColliderOffsetPosition(new Vector3(transform.position.x, groundYPos, transform.position.z)) + (transform.forward) * (Time.deltaTime * Speed));
-        Pos = new Vector3(transform.position.x, groundYPos, transform.position.z);
+            thruster.MovePosition(ColliderOffsetPosition(new Vector3(transform.position.x, GroundPosY, transform.position.z)) + (transform.forward) * (Time.deltaTime * Speed));
+        Pos = new Vector3(transform.position.x, GroundPosY, transform.position.z);
+
+        //if (IsLost)
+        //{
+        //    if (!CheckLost())
+        //    {
+        //        IsLost = false;
+        //        Alert_Found();
+        //    }
+        //}
+        //else
+        //{
+        //    if(CheckLost())
+        //    {
+        //        IsLost = true;
+        //        Alert_Lost();
+        //    }
+        //}
+
         MovementOrders = Vector3.zero;
+    }
+
+    #region LostAndFound
+    public bool IsLost
+    {
+        get; protected set;
     }
 
     public bool CheckLost()
@@ -221,11 +377,23 @@ public class GroupUnitMovement : Initializer, I_Movement
         return distanceFromCenter > Squad.CurrentVolumeRadius * 1.1f;
     }
 
+    public bool CheckFound()
+    {
+        return distanceFromCenter > distanceThreshold * 1.35f;
+    }
+
     protected void Alert_Lost()
     {
         var en = this;
         Squad.UnitLost(ref en);
     }
+
+    protected void Alert_Found()
+    {
+        var en = this;
+        Squad.UnitRecovered();
+    }
+    #endregion
 
     public void StartMoving()
     {
@@ -245,18 +413,23 @@ public class GroupUnitMovement : Initializer, I_Movement
 
     #region MovementUtils
     public Vector3 MovementOrders { get; set; }
-    public void SetFacingDirection()
+    private Quaternion lookRot;
+    public float SetFacingDirection()
     {
         try
         {
             if (MovementOrders == Vector3.zero)
-                return;
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(MovementOrders.x, 0, MovementOrders.z)), Time.deltaTime * 5f);
+                return 0;
+            //lookRot = Quaternion.LookRotation(new Vector3(MovementOrders.x, 0, MovementOrders.z));
+            lookRot = Quaternion.LookRotation(MovementOrders);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * TurnSpeed);
+            return Mathf.Abs(lookRot.eulerAngles.y - transform.rotation.eulerAngles.y);
         }
         catch (System.NullReferenceException e)
         {
 
         }
+        return 0;
     }
 
     public bool isCharacterAtPoint(Vector3 posIn)
@@ -281,6 +454,9 @@ public class GroupUnitMovement : Initializer, I_Movement
                             posIn.z);// + this.characterCollider.bounds.extents.z / 2f);
     }
 
+    /// <summary>
+    /// BaseSpeed is determined on a group level by the Group's Grid Movement Speed
+    /// </summary>
     public float BaseSpeed
     {
         get { return Squad.GroupGridComponent.BaseSpeed; }
@@ -296,12 +472,26 @@ public class GroupUnitMovement : Initializer, I_Movement
         }
     }
 
+    /// <summary>
+    ///  Real Speed is a product of the BaseSpeed and a SpeedModifier specific to this unit.
+    /// </summary>
     public float Speed
     {
         get { return BaseSpeed * SpeedModifier; }
     }
 
-    public float TurnSpeed { get; protected set; }
+    protected float BaseTurnSpeed { get; set; }
+    public float TurnSpeed
+    {
+        get
+        {
+            return Mathf.Clamp(BaseTurnSpeed * (1 / speedModifier), BaseTurnSpeed / 2f, BaseTurnSpeed * 2f);
+        }
+        set
+        {
+            BaseTurnSpeed = value;
+        }
+    }
 
     /*
 	 * Used to decide how many nodes are occupied by this character when pathing.
@@ -328,14 +518,6 @@ public class GroupUnitMovement : Initializer, I_Movement
         protected set
         {
             transform.position = value + new Vector3(0, characterCollider.bounds.extents.y, 0);
-        }
-    }
-
-    public float groundPosY
-    {
-        get
-        {
-            throw new NotImplementedException();
         }
     }
     #endregion
@@ -390,6 +572,6 @@ public class GroupUnitMovement : Initializer, I_Movement
 
     #region components
     public Rigidbody thruster { get; set; }
-    public I_Controller ComponentOwner { get; set; }
+    public I_Controller Component_Owner { get; set; }
     #endregion
 }

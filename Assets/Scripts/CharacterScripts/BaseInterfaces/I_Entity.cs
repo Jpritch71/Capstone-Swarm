@@ -6,6 +6,7 @@ public interface I_Entity
 {
     int Unique_ID { get; }
 
+    //bool Initialized { get; }
     bool Killable { get; }
     bool Dead { get; }
     float BaseIntegrity { get; }
@@ -14,12 +15,7 @@ public interface I_Entity
     void IncurDamage(float damageIn);
     void DeathAction();
 
-    GameObject _AttachedGameObject
-    {
-        get;
-    }
-
-    I_Movement _MovementComponent
+    I_Controller _Owner_Controller
     {
         get;
     }

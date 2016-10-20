@@ -1,8 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public abstract class GroupUnitController : Initializer, I_Controller
 {
+    protected override void InitAwake()
+    {
+        C_Movement = GetComponent<GroupUnitMovement>();
+        C_Movement.Component_Owner = this;
+        LoadStats();
+    }
+
     protected override void InitStart()
     {
 

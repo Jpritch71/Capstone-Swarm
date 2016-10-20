@@ -23,7 +23,7 @@ public interface I_Movement
         get;
     }
 
-    float groundPosY
+    float GroundPosY
     {
         get;
     }
@@ -37,4 +37,9 @@ public interface I_Movement
     {
         get;
     }
+
+    I_Controller Component_Owner { get; set; }
+
+    //// REVIST THE ABOVE,
+    //// See about doing a GetComponent<I_Controller>() in the InitAwake methods of each movement component. The appropriate controllers MIGHT always be in place
 }

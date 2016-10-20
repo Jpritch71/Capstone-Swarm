@@ -59,7 +59,7 @@ public class PlayerMovement : A_GridMover
                     }
                     else
                         Debug.Log("Where is the ground?");
-                    thruster.MovePosition(OffsetPosition(new Vector3(Pos.x, groundYPos, Pos.z)) + dir);
+                    thruster.MovePosition(OffsetPosition(new Vector3(Pos.x, groundYPos, Pos.z)) + dir / unitCollider.bounds.extents.x);
                 }
             }
         }

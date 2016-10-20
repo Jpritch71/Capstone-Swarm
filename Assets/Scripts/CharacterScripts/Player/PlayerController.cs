@@ -12,10 +12,13 @@ public class PlayerController : Initializer, I_Controller
     {
         C_Movement = GetComponent<PlayerMovement>();
         C_UnitMovement = GameObject.Find("PlayerUnit").GetComponentInChildren<GroupUnitMovement>();
+        C_Movement.Component_Owner = this;
+        C_UnitMovement.Component_Owner = this;
         C_PlayerGridMovement.BaseSpeed = 10f;
         AnimController = new PlayerAnimController(GameObject.Find("PlayerUnit").GetComponentInChildren<Animation>());
         C_StateMachine = new StateMachine(this, new S_Player_Idle(this));
-	}
+        LoadStats();
+    }
 
     protected override void InitStart()
     {
@@ -27,6 +30,9 @@ public class PlayerController : Initializer, I_Controller
     {
         if(C_StateMachine != null)
             C_StateMachine.ExecuteUpdate(); //update State Machine
+
+        if (Input.GetKeyDown(KeyCode.A))
+            return;
 
         if (Input.GetMouseButton(0) && C_PlayerGridMovement.CanMove)
         {
@@ -58,9 +64,9 @@ public class PlayerController : Initializer, I_Controller
         }
     }
 
-    void I_Controller.LoadStats()
+    public void LoadStats()
     {
-        throw new NotImplementedException();
+        C_Entity = new PlayerEntity(this, 200f);
     }
 
     #region Components
@@ -87,30 +93,6 @@ public class PlayerController : Initializer, I_Controller
     {
         get;
         protected set;
-    }
-
-    I_Movement I_Controller.C_Movement
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    I_Entity I_Controller.C_Entity
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    StateMachine I_Controller.C_StateMachine
-    {
-        get
-        {
-            throw new NotImplementedException();
-        }
     }
     #endregion
 }

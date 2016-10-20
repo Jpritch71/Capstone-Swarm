@@ -78,7 +78,7 @@ public class GroupManager : Initializer
         {
             StartCoroutine(Regroup());
         }
-        if (!IDs_OftheLost.Contains(unitIn.ComponentOwner.C_Entity.Unique_ID))
+        if (!IDs_OftheLost.Contains(unitIn.Component_Owner.C_Entity.Unique_ID))
         {
             unitsLost++;
         } 
