@@ -7,8 +7,8 @@ using System.Diagnostics;
 public class Pathfinder : MonoBehaviour
 {
     private static Pathfinder pathInstance; //singleton instance of Pathfinder
-    private static Queue<E_GridedMovement> pathingQueue; //First in First out Grid Movers to be serviced
-    private static HashSet<E_GridedMovement> queueMembers; //Membership set, do not allow Grid movers in twice
+    private static Queue<A_GridMover> pathingQueue; //First in First out Grid Movers to be serviced
+    private static HashSet<A_GridMover> queueMembers; //Membership set, do not allow Grid movers in twice
 
     private static Thread pathingThread, workerThread;
     //private static List<Thread> threads;
@@ -19,8 +19,8 @@ public class Pathfinder : MonoBehaviour
 
     void Awake()
     {
-        pathingQueue = new Queue<E_GridedMovement>();
-        queueMembers = new HashSet<E_GridedMovement>();
+        pathingQueue = new Queue<A_GridMover>();
+        queueMembers = new HashSet<A_GridMover>();
         //threads = new List<Thread>();
     }
 
@@ -51,7 +51,7 @@ public class Pathfinder : MonoBehaviour
     /// <param name="character">reference to the Grid Mover requesting a path</param>
     /// 
     /// /// <returns>bool</returns>
-    public bool GetPathAStar(ref E_GridedMovement character) 
+    public bool GetPathAStar(ref A_GridMover character) 
     {
         if (!queueMembers.Contains(character))
         {
@@ -97,7 +97,7 @@ public class Pathfinder : MonoBehaviour
     {
         Stopwatch timer = new Stopwatch();
         timer.Start();
-        E_GridedMovement c = null;
+        A_GridMover c = null;
         lock (pathingQueue)
         {
             c = pathingQueue.Dequeue();

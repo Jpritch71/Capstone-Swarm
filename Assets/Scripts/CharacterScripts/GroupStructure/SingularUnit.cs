@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SingularUnit : GroupUnit
+public class SingularUnit : GroupUnitMovement
 {
 
 }

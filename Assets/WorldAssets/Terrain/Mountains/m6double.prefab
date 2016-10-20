@@ -10,7 +10,7 @@ GameObject:
   - 4: {fileID: 420064}
   - 33: {fileID: 3369124}
   - 23: {fileID: 2301576}
-  - 65: {fileID: 65000013145913468}
+  - 64: {fileID: 64000011266708924}
   m_Layer: 13
   m_Name: m6double
   m_TagString: Untagged
@@ -78,8 +78,8 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 110838}
   m_IsPrefabParent: 1
---- !u!65 &65000013145913468
-BoxCollider:
+--- !u!64 &64000011266708924
+MeshCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
@@ -88,5 +88,5 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 9.21317, y: 5.296146, z: 8.40356}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Convex: 0
+  m_Mesh: {fileID: 4300016, guid: 02f0209e3ac493448991310d5094b27d, type: 3}

@@ -20,7 +20,7 @@ public abstract class S_OrkState : I_State
 
     protected void SetControllerState(I_State stateIn)
     {
-        ownerOrk.stateController.SetCurrentState(stateIn);
+        ownerOrk.C_StateMachine.SetCurrentState(stateIn);
     }
 
     public abstract void Execute();
@@ -38,7 +38,7 @@ public class S_Ork_Running : S_OrkState
 
     public override void Execute()
     {
-        if (!ownerOrk.MovementComponent.Moving)
+        if (!ownerOrk.C_Movement.Moving)
         {
             SetControllerState(new S_Ork_Idle(ownerOrk));
         }
@@ -69,7 +69,7 @@ public class S_Ork_Idle : S_OrkState
 
     public override void Execute()
     {
-        if (ownerOrk.MovementComponent.Moving)
+        if (ownerOrk.C_Movement.Moving)
         {
             SetControllerState(new S_Ork_Running(ownerOrk));
         }
@@ -100,7 +100,7 @@ public class S_Ork_Attack : S_OrkState
 
     public override void Execute()
     {
-        if (ownerOrk.MovementComponent.Moving)
+        if (ownerOrk.C_Movement.Moving)
         {
             SetControllerState(new S_Ork_Running(ownerOrk));
         }

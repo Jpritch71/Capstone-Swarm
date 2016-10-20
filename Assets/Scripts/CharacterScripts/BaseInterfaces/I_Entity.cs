@@ -1,8 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public interface I_Entity
 {
+    int Unique_ID { get; }
+
+    //bool Initialized { get; }
     bool Killable { get; }
     bool Dead { get; }
     float BaseIntegrity { get; }
@@ -11,23 +15,20 @@ public interface I_Entity
     void IncurDamage(float damageIn);
     void DeathAction();
 
-    float groundPosY
-    {
-        get;
-    }
-
-    /*
-     * Use this to set or get the character's position
-     * Get - Gets the current position
-     * Set - Sets the position, offseting the value so that the collider is resting on the ground.
-     * */
-    Vector3 Pos
-    {
-        get;
-    }
-
-    GameObject _AttachedGameObject
+    I_Controller _Owner_Controller
     {
         get;
     }
 }
+
+public class EntityManager
+{
+    //private static HashSet<I_Entity> IDs;
+    private static int ID;
+    public static int GetUniqueID(ref I_Entity entityIn)
+    {
+        //entityIn.Unique_ID = ID;
+        return ID++;
+    }
+}
+

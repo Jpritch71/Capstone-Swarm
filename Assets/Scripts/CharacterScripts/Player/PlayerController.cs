@@ -1,40 +1,52 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : Initializer, I_Controller
 {
     private RaycastHit[] hits; //variable for storing temporary RaycastHit array
     private RaycastHit hit;
 
     // Use this for initialization
-    void Awake ()
+    protected override void InitAwake ()
     {
-        MovementComponent = GetComponent<PlayerMovement>();
-        UnitMovementComponent = GameObject.Find("PlayerUnit").GetComponentInChildren<GroupUnit>();
-        MovementComponent.BaseSpeed = 10f;
+        C_Movement = GetComponent<PlayerMovement>();
+        C_UnitMovement = GameObject.Find("PlayerUnit").GetComponentInChildren<GroupUnitMovement>();
+        C_Movement.Component_Owner = this;
+        C_UnitMovement.Component_Owner = this;
+        C_PlayerGridMovement.BaseSpeed = 10f;
         AnimController = new PlayerAnimController(GameObject.Find("PlayerUnit").GetComponentInChildren<Animation>());
-        stateController = new StateMachine(MovementComponent, new S_Player_Idle(this));
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-        if(stateController != null)
-            stateController.ExecuteUpdate(); //update State Machine
+        C_StateMachine = new StateMachine(this, new S_Player_Idle(this));
+        LoadStats();
+    }
 
-        if (Input.GetMouseButton(0) && MovementComponent.CanMove)
+    protected override void InitStart()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update ()
+    {
+        if(C_StateMachine != null)
+            C_StateMachine.ExecuteUpdate(); //update State Machine
+
+        if (Input.GetKeyDown(KeyCode.A))
+            return;
+
+        if (Input.GetMouseButton(0) && C_PlayerGridMovement.CanMove)
         {
-            if (!MovementComponent.DirectionalMovement)
+            if (!C_PlayerGridMovement.DirectionalMovement)
             {
-                MovementComponent.StopMoving();
+                C_Movement.StopMoving();
             }
-            MovementComponent.StartFreeMoving();
+            C_PlayerGridMovement.StartFreeMoving();
         }
-        else if(Input.GetMouseButtonUp(0) || !MovementComponent.CanMove)
+        else if(Input.GetMouseButtonUp(0) || !C_PlayerGridMovement.CanMove)
         {
-            MovementComponent.EndFreeMove();
+            C_PlayerGridMovement.EndFreeMove();
         }
-        if (Input.GetMouseButtonDown(1) && !MovementComponent.DirectionalMovement)
+        if (Input.GetMouseButtonDown(1) && !C_PlayerGridMovement.DirectionalMovement)
         {
             hits = Physics.RaycastAll(Camera.main.ScreenToWorldPoint(Input.mousePosition), Camera.main.ScreenPointToRay(Input.mousePosition).direction, Mathf.Infinity, (1 << 8) + (1 << 9));
 
@@ -47,15 +59,40 @@ public class PlayerController : MonoBehaviour
                         hit = hits[x];
                 }
                 //marker.transform.position = hit.point;
-                MovementComponent.SetPathToPoint(hit.point);
+                C_PlayerGridMovement.SetPathToPoint(hit.point);
             }
         }
     }
 
+    public void LoadStats()
+    {
+        C_Entity = new PlayerEntity(this, 200f);
+    }
+
     #region Components
-    public PlayerMovement MovementComponent { get; private set; }
-    public GroupUnit UnitMovementComponent { get; private set; }
-    public PlayerAnimController AnimController { get; private set; }
-    public StateMachine stateController { get; private set; }
+    public I_Movement C_Movement { get; protected set; }  
+    public PlayerMovement C_PlayerGridMovement
+    {
+        get
+        {
+            return (PlayerMovement)C_Movement;
+        }
+        protected set
+        {
+            C_Movement = value;
+        }
+    }
+    public GroupUnitMovement C_UnitMovement
+    {
+        get; protected set;
+    }
+    public PlayerAnimController AnimController { get; protected set; }
+    public StateMachine C_StateMachine { get; protected set; }
+
+    public I_Entity C_Entity
+    {
+        get;
+        protected set;
+    }
     #endregion
 }

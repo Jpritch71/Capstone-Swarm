@@ -21,7 +21,7 @@ public abstract class S_PlayerState : I_State
 
     protected void SetControllerState(I_State stateIn)
     {
-        ownerPlayer.stateController.SetCurrentState(stateIn);
+        ownerPlayer.C_StateMachine.SetCurrentState(stateIn);
     }
 
     public abstract void Execute();
@@ -39,7 +39,7 @@ public class S_Player_Running : S_PlayerState
 
     public override void Execute()
     {
-        if (!ownerPlayer.UnitMovementComponent.Moving)
+        if (!ownerPlayer.C_UnitMovement.Moving)
         {
             SetControllerState(new S_Player_Idle(ownerPlayer));
         }
@@ -70,7 +70,7 @@ public class S_Player_Idle : S_PlayerState
 
     public override void Execute()
     {
-        if (ownerPlayer.UnitMovementComponent.Moving)
+        if (ownerPlayer.C_UnitMovement.Moving)
         {
             SetControllerState(new S_Player_Running(ownerPlayer));
         }

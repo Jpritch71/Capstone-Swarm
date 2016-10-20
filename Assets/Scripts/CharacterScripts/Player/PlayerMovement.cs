@@ -1,9 +1,10 @@
 using UnityEngine;
-using System.Runtime.CompilerServices; 
+using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Collections;
+using System;
 
-public class PlayerMovement : E_GridedMovement 
+public class PlayerMovement : A_GridMover 
 {
     private bool directionalMovement = false;
     public bool DirectionalMovement { get { return directionalMovement; } }
@@ -17,28 +18,12 @@ public class PlayerMovement : E_GridedMovement
     }
 	public PlayerMovement()
 	{
-		baseSpeed = 9f; //x units per second
-	}
-
-    void Awake()
-    {
-        InitAwake();
-    }
-
-    // Use this for initialization
-    void Start()
-	{
-        InitStart();
+		baseSpeed = 15f; //x units per second
 	}
 
     protected override void InitAwake()
     {
         unitCollider = GetComponent<CapsuleCollider>();
-    }
-
-    protected override void InitStart()
-    {
-
     }
 
     void FixedUpdate()
@@ -57,13 +42,11 @@ public class PlayerMovement : E_GridedMovement
                 }
 
                 var dir = hit.point;
-                dir = (dir - Pos).normalized * Speed * Time.deltaTime;
-                dir = Pos + dir;
+                dir = (dir - Pos).normalized * Speed * unitCollider.bounds.extents.x * Time.deltaTime;
 
-                if (WorldManager._WORLD.GetTile(dir).Walkable)
+                if (WorldManager._WORLD.GetTile(Pos + dir).Walkable)
                 {
-                    hits = Physics.SphereCastAll(transform.position + (Vector3.up * unitCollider.bounds.size.y), unitCollider.radius * .1f, Vector3.down, 200f, (1 << 8));
-
+                    hits = Physics.SphereCastAll(Pos + dir + (Vector3.up * unitCollider.bounds.size.y), unitCollider.radius * .1f, Vector3.down, 5f, (1 << 8));
                     if (hits.Length > 0)
                     {
                         hit = hits[0];
@@ -76,7 +59,7 @@ public class PlayerMovement : E_GridedMovement
                     }
                     else
                         Debug.Log("Where is the ground?");
-                    Pos = new Vector3(dir.x, groundYPos, dir.z);
+                    thruster.MovePosition(OffsetPosition(new Vector3(Pos.x, groundYPos, Pos.z)) + dir / unitCollider.bounds.extents.x);
                 }
             }
         }

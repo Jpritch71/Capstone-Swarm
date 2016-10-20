@@ -10,7 +10,7 @@ GameObject:
   - 4: {fileID: 430684}
   - 33: {fileID: 3328708}
   - 23: {fileID: 2345512}
-  - 65: {fileID: 65000013203530464}
+  - 64: {fileID: 64000011013319222}
   m_Layer: 13
   m_Name: mountain2
   m_TagString: Untagged
@@ -80,8 +80,8 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 161514}
   m_IsPrefabParent: 1
---- !u!65 &65000013203530464
-BoxCollider:
+--- !u!64 &64000011013319222
+MeshCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
@@ -90,5 +90,5 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 13.849833, y: 10.042939, z: 15.159033}
-  m_Center: {x: -0.3449862, y: 0.27833748, z: 6.7435226}
+  m_Convex: 0
+  m_Mesh: {fileID: 4300026, guid: 02f0209e3ac493448991310d5094b27d, type: 3}
