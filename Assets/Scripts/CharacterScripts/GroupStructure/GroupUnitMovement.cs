@@ -74,9 +74,10 @@ public class GroupUnitMovement : Initializer, I_Movement
 
     protected override void InitAwake()
     {
+        transform = GetComponent<Transform>();
         Component_Owner = GetComponent<I_Controller>();
         characterCollider = GetComponent<CapsuleCollider>();
-        print(this.name + " " + characterCollider.bounds.extents.y);
+        //print(this.name + " " + characterCollider.bounds.extents.y);
         collisionAvoidanceCollider = GetComponent<SphereCollider>();
         TurnSpeed = 5f;
     }
@@ -520,6 +521,7 @@ public class GroupUnitMovement : Initializer, I_Movement
             transform.position = value + new Vector3(0, characterCollider.bounds.extents.y, 0);
         }
     }
+    protected new Transform transform;
     #endregion
 
     #region components
@@ -543,7 +545,11 @@ public class GroupUnitMovement : Initializer, I_Movement
     protected List<GameObject> neighborColliders = new List<GameObject>();
     void OnTriggerEnter(Collider other)
     {
-        var unitComponent = other.GetComponent<GroupUnitMovement>();
+        int bitwise = (1 << other.gameObject.layer) & WorldManager.unitAvoidanceFlag;
+        if (bitwise == 0) //if 0, the other collider is not on a layer we are interested in (Enemy, player, obstacle)
+            return;
+
+        var unitComponent = other.transform.parent.GetComponent<GroupUnitMovement>();
 
         if (unitComponent != null)
         {
@@ -560,7 +566,11 @@ public class GroupUnitMovement : Initializer, I_Movement
 
     void OnTriggerExit(Collider other)
     {
-        var unitComponent = other.GetComponent<GroupUnitMovement>();
+        int bitwise = (1 << other.gameObject.layer) & WorldManager.unitAvoidanceFlag;
+        if (bitwise == 0) //if 0, the other collider is not on a layer we are interested in (Enemy, player, obstacle)
+            return;
+
+        var unitComponent = other.transform.parent.GetComponent<GroupUnitMovement>();
 
         if (unitComponent != null && unitComponent != this)
             neighborUnits.Remove(unitComponent);

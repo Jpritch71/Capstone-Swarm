@@ -14,6 +14,11 @@ public class GroupManager : Initializer
 
     protected override void InitAwake()
     {
+        
+    }
+
+    protected override void InitStart()
+    {
         volumeCollider = GetComponent<SphereCollider>();
 
         GroupGridComponent = GetComponent<A_GridMover>();
@@ -28,10 +33,7 @@ public class GroupManager : Initializer
 
         squadObject.name = name + ": " + squadObject.name;
         squadObject.parent = GameObject.Find("EntityHierarchy").transform;
-    }
 
-    protected override void InitStart()
-    {
         lastPos = transform.position;
 
         bar = Instantiate(new GameObject()) as GameObject;

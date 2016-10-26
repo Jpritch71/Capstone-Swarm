@@ -4,9 +4,10 @@ using System;
 
 public class MeleeOrkController : OrkUnitController
 {
+    public Transform weapon;
     protected override void InitAwake()
     {
-        base.InitAwake();       
+        base.InitAwake();
         AnimController = new GrouchoAnimController(transform.Find("Groucho").GetComponent<Animator>());
         C_StateMachine = new StateMachine(this, new S_Ork_Idle(this));
     }
@@ -20,6 +21,8 @@ public class MeleeOrkController : OrkUnitController
 
     public override void LoadStats()
     {
-        C_Entity = new OrkEntity(this, 100f);
+        C_Entity = new OrkEntity(this, 100f, 1);
+        MeleeWeapon OrkAxe = new MeleeWeapon(weapon, Combat.WeaponType.Axe, 1f, "Staff Axe", 0);
+        C_Entity.AttackManager.AddAttack(0, new MeleeAttack(C_Entity, OrkAxe, 1f));
     }
 }

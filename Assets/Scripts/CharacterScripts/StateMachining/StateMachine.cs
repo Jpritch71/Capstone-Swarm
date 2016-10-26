@@ -56,14 +56,12 @@ public class StateMachine
         CurrentState.OnStart(); //tell the new state it has started.
     }
 
-    //public void StartBlip(GlobalState gStateIn)
-    //{
-    //    SetCurrentState(gStateIn);
-    //}
+    public void ReturnToPreviousState()
+    {
+        CurrentState.OnStopped(); //tell the previous state it is stopped
 
-    //public void EndBlip()
-    //{
-    //    SetCurrentState(PreviousState);
-    //}
+        CurrentState = PreviousState; //set the new state
+        CurrentState.OnStart(); //tell the new state it has started.
+    }
 }
 

@@ -10,11 +10,10 @@ public class Pathfinder : MonoBehaviour
     private static Queue<A_GridMover> pathingQueue; //First in First out Grid Movers to be serviced
     private static HashSet<A_GridMover> queueMembers; //Membership set, do not allow Grid movers in twice
 
-    private static Thread pathingThread, workerThread;
+    private static Thread pathingThread;
     //private static List<Thread> threads;
 
     private static bool pathingThreadRunning = false;
-    private static int threadsRunning = 0;
 
 
     void Awake()

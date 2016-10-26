@@ -62,6 +62,11 @@ public abstract class A_GridMover : Initializer, I_Movement
         //nodeTraveledInPath = 0;       
 	}
 
+    protected override void InitAwake()
+    {
+        transform = GetComponent<Transform>();
+    }
+
     protected override void InitStart()
     {
         thruster = GetComponent<Rigidbody>(); 
@@ -104,7 +109,7 @@ public abstract class A_GridMover : Initializer, I_Movement
 
     public void SetPathToTarget(I_Entity targetIn)
     {
-        StartCoroutine(StartPathToNode(WorldManager._WORLD.GetTile(targetIn._Owner_Controller.C_Movement.Pos)));
+        StartCoroutine(StartPathToNode(WorldManager._WORLD.GetTile(targetIn.Owner_C_Controller.C_Movement.Pos)));
     }
 
     public void SetPathToPoint(Vector3 pointIn)
@@ -407,6 +412,7 @@ public abstract class A_GridMover : Initializer, I_Movement
             transform.position = value + new Vector3(0, 1f, 0);
         }
     }
+    protected new Transform transform;
 
     public float GroundPosY { get; protected set; }
 

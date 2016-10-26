@@ -66,7 +66,8 @@ public class PlayerController : Initializer, I_Controller
 
     public void LoadStats()
     {
-        C_Entity = new PlayerEntity(this, 200f);
+        print("GET THE PLAYER STATS");
+        C_Entity = new PlayerEntity(this, 200f, 1);
     }
 
     #region Components

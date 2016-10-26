@@ -42,6 +42,7 @@ public class OrkSquadController : SquadController
     public override void LoadStats()
     {
         C_GridMovement.BaseSpeed = 9f;
+        C_Vision.VisionRange = 10f;
     }
 
     #region Components

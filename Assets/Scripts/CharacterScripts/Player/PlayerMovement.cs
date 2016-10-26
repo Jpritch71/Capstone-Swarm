@@ -23,6 +23,7 @@ public class PlayerMovement : A_GridMover
 
     protected override void InitAwake()
     {
+        base.InitAwake();
         unitCollider = GetComponent<CapsuleCollider>();
     }
 

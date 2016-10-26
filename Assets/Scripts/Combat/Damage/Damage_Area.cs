@@ -12,12 +12,12 @@ namespace DamageControl
         public Damage_Area()
         {
             radius = 1f;
-            pos = new Vector2(-999, -999);
+            pos = new Vector3(-999, -999);
             Damage = 100f;
             TryDamage();
         }
 
-        public Damage_Area(Vector2 posIn, float damageIn, float radiusIn)
+        public Damage_Area(Vector3 posIn, float damageIn, float radiusIn)
         {
             pos = posIn;
             Damage = damageIn;
@@ -29,7 +29,7 @@ namespace DamageControl
         {
             //Debug.Log("tryDamn");
             //Debug.DrawRay(pos, (Vector2.up - new Vector2(pos.x, pos.y)) * radiusIn);
-            foreach (Collider2D c in Physics2D.OverlapCircleAll(pos, radius))
+            foreach (Collider c in Physics.OverlapSphere(pos, radius))
             {
                 //Debug.Log("foundDamn");
                 I_Entity en = c.GetComponent<I_Entity>();

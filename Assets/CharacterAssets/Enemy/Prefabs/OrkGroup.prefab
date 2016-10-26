@@ -27,7 +27,7 @@ GameObject:
   - 54: {fileID: 54000010552121724}
   - 114: {fileID: 114000011884398964}
   - 114: {fileID: 114000011767228548}
-  m_Layer: 12
+  m_Layer: 10
   m_Name: OrkGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42,8 +42,24 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 4000012064418776}
-  m_Layer: 12
+  m_Layer: 10
   m_Name: squad
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1000011846439696
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 4000012367287822}
+  - 135: {fileID: 135000011074070030}
+  m_Layer: 10
+  m_Name: VisionObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -56,11 +72,12 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000011170204246}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 83.45, y: 21.45, z: 443.38}
+  m_LocalPosition: {x: 113.41311, y: 21.50658, z: 459.04944}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 4000012064418776}
+  - {fileID: 4000012367287822}
   m_Father: {fileID: 0}
   m_RootOrder: 0
 --- !u!4 &4000012064418776
@@ -76,6 +93,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4000010887602162}
   m_RootOrder: 0
+--- !u!4 &4000012367287822
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011846439696}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 4000010887602162}
+  m_RootOrder: 1
 --- !u!23 &23000011506093376
 MeshRenderer:
   m_ObjectHideFlags: 1
@@ -160,6 +190,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ad80cb8101395942a8ee9ed88adb4ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!135 &135000011074070030
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011846439696}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!135 &135000012121337022
 SphereCollider:
   m_ObjectHideFlags: 1

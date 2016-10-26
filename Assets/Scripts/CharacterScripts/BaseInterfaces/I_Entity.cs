@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Combat;
 
 public interface I_Entity
 {
+    AttackContainer AttackManager { get; }
     int Unique_ID { get; }
+    int EntityLayer { get; }
 
     //bool Initialized { get; }
     bool Killable { get; }
@@ -15,20 +18,21 @@ public interface I_Entity
     void IncurDamage(float damageIn);
     void DeathAction();
 
-    I_Controller _Owner_Controller
+    I_Controller Owner_C_Controller
     {
         get;
     }
+
+    Collider C_Collider
+    {
+        get;
+    }
+
+    Entity_MonoBehaviour C_MonoBehavior { get; }
+
+    string Name { get; }
+    int EntityLevel { get; }
+    CombatModifierHandler DefenseModifiers { get; }
 }
 
-public class EntityManager
-{
-    //private static HashSet<I_Entity> IDs;
-    private static int ID;
-    public static int GetUniqueID(ref I_Entity entityIn)
-    {
-        //entityIn.Unique_ID = ID;
-        return ID++;
-    }
-}
 
