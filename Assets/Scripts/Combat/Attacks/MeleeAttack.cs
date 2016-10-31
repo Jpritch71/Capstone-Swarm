@@ -34,7 +34,7 @@ public class MeleeAttack : A_Attack
             if (c.gameObject.layer == attackerLayer)
                 continue;
             if(EntityManager.GetEntityByCollider(c, ref en))
-            DamageControl.DamageController.Instance.AddDamageToTarget(en, 100f);
+            DamageControl.DamageController.Instance.AddDamageToTarget(en, 10f);
         }
         collidersHit = null;
     }

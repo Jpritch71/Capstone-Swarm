@@ -7,8 +7,8 @@ public abstract class A_Attack
 {
     public abstract Vector3 PointOfOrigin { get; }
 
+    public Weapon AttackingWeapon { get; protected set; }
     public AttackMethod MethodOfAttack { get; protected set; }
-    public I_Weapon AttackingWeapon { get; protected set; }
     public WeaponType TypeOfWeapon { get { return AttackingWeapon.TypeOfWeapon; } }
     public CombatModifierHandler AttackModifiers { get; protected set; }
 
@@ -37,7 +37,7 @@ public abstract class A_Attack
         AttackDuration = 1f;
     }
     
-    public A_Attack(I_Entity attackingEntityIn, AttackMethod methodIn, I_Weapon weaponIn, float durationIn)
+    public A_Attack(I_Entity attackingEntityIn, AttackMethod methodIn, Weapon weaponIn, float durationIn)
     {
         attackingEntity = attackingEntityIn;
         MethodOfAttack = methodIn;
@@ -49,6 +49,7 @@ public abstract class A_Attack
 
     public void DoAttack()
     {
+        AttackingWeapon.Attacking = true;
         OnAttackStart();
         Timer.Register(AttackDuration, () => { ApplyAttack(); OnAttackFinish(); }, null, false, false, null);
     } 
@@ -65,6 +66,7 @@ public abstract class A_Attack
     {
         AttackInProgress = false;
         AttackCompleted = true;
+        AttackingWeapon.Attacking = false;
     }
 
     public void CancelAttack()
@@ -73,6 +75,7 @@ public abstract class A_Attack
             attackTimer.Cancel();
         AttackInProgress = false;
         AttackCompleted = true;
+        AttackingWeapon.Attacking = false;
     }
 }
 

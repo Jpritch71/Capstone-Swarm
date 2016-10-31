@@ -81,35 +81,35 @@ namespace Combat
         }
     }
 
-    public class AttackContainer
+    public class WeaponContainer
     {
-        public System.Collections.Generic.Dictionary<int, A_Attack> Attacks;
-        public A_Attack AutoAttack { get; protected set; }
-
-        public AttackContainer()
+        public Weapon ActiveWeapon { get; protected set; }
+        public System.Collections.Generic.Dictionary<int, Weapon> Weapons;
+       
+        public WeaponContainer()
         {
-            Attacks = new System.Collections.Generic.Dictionary<int, A_Attack>();
+            Weapons = new System.Collections.Generic.Dictionary<int, Weapon>();
         }
 
-        public void AddAttack(int idIn, A_Attack attackIn)
+        public void AddWeapon(int idIn, Weapon weaponIn)
         {
-            if (AutoAttack == null)
-                SetAutoAttack(attackIn);
-            Attacks.Add(idIn, attackIn);
+            if (ActiveWeapon == null)
+                SetActiveWeapon(weaponIn);
+            Weapons.Add(idIn, weaponIn);
         }
 
-        public void SetAutoAttack(A_Attack attackIn)
+        public void SetActiveWeapon(Weapon attackIn)
         {
-            AutoAttack = attackIn;
+            ActiveWeapon = attackIn;
         }
 
-        public bool SetAutoAttackByID(int attackIDin)
+        public bool SetActiveWeaponByID(int attackIDin)
         {
-            A_Attack att = null;
-            bool success = Attacks.TryGetValue(attackIDin, out att);
+            Weapon wep = null;
+            bool success = Weapons.TryGetValue(attackIDin, out wep);
             if(success)
             {
-                AutoAttack = att;
+                ActiveWeapon = wep;
                 return true;
             }
             return false;

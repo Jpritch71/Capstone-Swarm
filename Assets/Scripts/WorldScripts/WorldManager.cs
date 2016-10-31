@@ -7,9 +7,9 @@ public class WorldManager : ScriptableObject
     private static System.Random random;
 
     public static int mapFlag = (1 << 8) | (1 << 9) | (1 << 13);
+    public static int obstacleFlag = (1 << 13);
     public static int entityFlag = (1 << 11) | (1 << 12);
     public static int entityUtilityFlag = (1 << 10);
-    public static int unitAvoidanceFlag = entityFlag | (1 << 13);
 
     public static System.Random Random
     {
@@ -34,4 +34,12 @@ public class WorldManager : ScriptableObject
             return WORLD;
         }
     }
+}
+
+public enum Flags
+{
+    WorldObjects = (1 << 8) | (1 << 9) | (1 << 13),
+    Obstacles = (1 << 13),
+    Entities = (1 << 11) | (1 << 12),
+    EntityUtilities = (1 << 10)
 }

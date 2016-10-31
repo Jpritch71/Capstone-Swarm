@@ -23,7 +23,6 @@ GameObject:
   - 136: {fileID: 136000013155222242}
   - 23: {fileID: 23000011506093376}
   - 135: {fileID: 135000012121337022}
-  - 114: {fileID: 114000010180243014}
   - 54: {fileID: 54000010552121724}
   - 114: {fileID: 114000011884398964}
   - 114: {fileID: 114000011767228548}
@@ -157,17 +156,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &114000010180243014
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000011170204246}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef3209eb90b860d439fa472f34d7c673, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114000011767228548
 MonoBehaviour:
   m_ObjectHideFlags: 1

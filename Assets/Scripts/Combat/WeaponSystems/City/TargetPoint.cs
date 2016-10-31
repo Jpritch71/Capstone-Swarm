@@ -4,8 +4,8 @@ using System;
 
 public class TargetPoint : Entity
 {
-    public override int EntityLayer { get { return 10; } }
-    protected I_Entity parentEntity;
+    protected I_WeakSpot owner;
+
     private float lastDamage; //whatever damage was most recently inflicted upon the target point
 
     public override string Name
@@ -16,24 +16,16 @@ public class TargetPoint : Entity
         }
     }
 
-    public TargetPoint(I_Controller controllerMonoBehavior, float baseIntegrityIn) : base(controllerMonoBehavior, baseIntegrityIn, 1)
-    {
-        Killable = true;
-        InitializeIntegrity(baseIntegrityIn);
-        parentEntity = controllerMonoBehavior.C_Entity;
-    }
-       
-    public TargetPoint(I_Controller controllerMonoBehavior) : base(controllerMonoBehavior)
+    public TargetPoint(I_WeakSpot controllerMonoBehavior)
     {
         Killable = true;
         InitializeIntegrity(1f);
-        parentEntity = controllerMonoBehavior.C_Entity;
         EntityLevel = 1;
     }
 
     public override void DeathAction()
     {
-        parentEntity.IncurDamage(lastDamage);
+        owner.C_OwnerEntity.IncurDamage(lastDamage);
         Integrity = BaseIntegrity;
     }
 
@@ -52,4 +44,9 @@ public class TargetPoint : Entity
             DeathAction();
         }       
     }
+}
+
+public interface I_WeakSpot
+{
+    I_Entity C_OwnerEntity { get; }
 }

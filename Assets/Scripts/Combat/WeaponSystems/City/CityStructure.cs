@@ -3,7 +3,6 @@ using System.Collections;
 
 public class PlayerStructure : TaggableEntity
 {
-    public override int EntityLayer { get { return 11; } }
     public bool StructureAlive { get; protected set; }
 
     public override string Name

@@ -1,0 +1,134 @@
+﻿using System;
+using UnityEngine;
+/// <summary>
+/// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Ork STATES
+/// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// </summary>
+public abstract class S_OrkState : I_State
+{
+    protected OrkUnitController ownerOrk;
+
+    public ID_Status currentStatus
+    {
+        get; protected set;
+    }
+
+    public S_OrkState(OrkUnitController OrkIn)
+    {
+        ownerOrk = OrkIn;
+    }
+
+    protected void SetControllerState(I_State stateIn)
+    {
+        ownerOrk.C_StateMachine.SetCurrentState(stateIn);
+    }
+
+    protected void ReturnToPreviousState()
+    {
+        ownerOrk.C_StateMachine.ReturnToPreviousState();
+    }
+
+    public abstract void Execute();
+    public abstract void OnStart();
+    public abstract void OnStopped();
+}
+
+/// <summary>
+/// Running (moving) state for generic orks
+/// Transitions: !Moving --> S_Ork_Idle
+/// </summary>
+public class S_Ork_Running : S_OrkState
+{
+    public S_Ork_Running(OrkUnitController OrkIn) : base(OrkIn)
+    {
+
+    }
+
+    public override void Execute()
+    {
+        if (!ownerOrk.C_Movement.Moving)
+        {
+            SetControllerState(new S_Ork_Idle(ownerOrk));
+        }
+        if (ownerOrk.C_Movement.AttackMode)
+        {
+            if (ownerOrk.C_Movement.DistanceToTarget <= ownerOrk.C_Entity.AttackManager.ActiveWeapon.WeaponRange)
+                SetControllerState(new S_Ork_Attack(ownerOrk));
+        }
+    }
+
+    public override void OnStart()
+    {
+        ownerOrk.AnimController.StartRunning();
+    }
+
+    public override void OnStopped()
+    {
+
+    }
+}
+
+/// <summary>
+/// idle (not moving) state for generic orks
+/// Transitions: Moving --> S_Ork_Running; 
+/// </summary>
+public class S_Ork_Idle : S_OrkState
+{
+    public S_Ork_Idle(OrkUnitController OrkIn) : base(OrkIn)
+    {
+
+    }
+
+    public override void Execute()
+    {
+        if (ownerOrk.C_Movement.Moving)
+        {
+            SetControllerState(new S_Ork_Running(ownerOrk));
+            return;
+        }
+        if(ownerOrk.C_Movement.AttackMode)
+        {
+            if (ownerOrk.C_Movement.DistanceToTarget <= ownerOrk.C_Entity.AttackManager.ActiveWeapon.WeaponRange)
+                SetControllerState(new S_Ork_Attack(ownerOrk));
+        }
+    }
+
+    public override void OnStart()
+    {
+        ownerOrk.AnimController.StartIdle();
+    }
+
+    public override void OnStopped()
+    {
+        
+    }
+}
+
+public class S_Ork_Attack : S_OrkState
+{
+    protected bool attacking;
+    public S_Ork_Attack(OrkUnitController OrkIn) : base(OrkIn)
+    {
+    }
+
+    public override void Execute()
+    {
+        if (ownerOrk.C_Entity.AttackManager.ActiveWeapon.ActiveAttack.AttackCompleted)
+        {
+            ReturnToPreviousState();
+        }
+    }
+
+    public override void OnStart()
+    {
+        ownerOrk.AnimController.StartAttack();
+        ownerOrk.C_Entity.AttackManager.ActiveWeapon.DoAttack();
+        ownerOrk.C_Movement.PauseMoving();
+    }
+
+    public override void OnStopped()
+    {
+        ownerOrk.C_Movement.StartMoving();
+    }
+}
