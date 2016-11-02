@@ -65,6 +65,7 @@ public abstract class A_GridMover : Initializer, I_Movement
     protected override void InitAwake()
     {
         transform = GetComponent<Transform>();
+        unitCollider = GetComponent<CapsuleCollider>();
     }
 
     protected override void InitStart()
@@ -147,7 +148,7 @@ public abstract class A_GridMover : Initializer, I_Movement
         Node locationNode = WorldManager._WORLD.GetTile(Pos);
         if (workingNode.Equals(targetNode) && lastPathStart != locationNode)
         {
-            UnityEngine.Debug.Log("Target not changed");
+            Debug.Log("Target not changed, Node: " + targetNode);
             workingNode = null;
             yield break;
         }
@@ -309,7 +310,7 @@ public abstract class A_GridMover : Initializer, I_Movement
     {
         try
         {
-            if ((posIn - Pos).magnitude <= Mathf.Clamp(Time.deltaTime * Speed, unitCollider.radius, Mathf.Infinity))
+            if ((posIn - Pos).magnitude <= UnitCollider.radius)//Mathf.Clamp(Time.deltaTime * Speed * unitCollider.radius, unitCollider.radius / 2f, Mathf.Infinity))
                 return true;
             return false;
         }
@@ -319,13 +320,18 @@ public abstract class A_GridMover : Initializer, I_Movement
         }
     }
 
-	//find the given position, relative to the character bounds
-	protected Vector3 OffsetPosition(Vector3 posIn)
-	{
-		return new Vector3 (posIn.x,// + this.characterCollider.bounds.extents.x / 2f,
-		                    posIn.y + unitCollider.bounds.extents.y,
-		                    posIn.z);// + this.characterCollider.bounds.extents.z / 2f);
-	}
+    public bool isCharacterAtPointOffset(Vector3 posIn)
+    {
+        return isCharacterAtPoint(OffsetPosition(posIn));
+    }
+
+    //find the given position, relative to the character bounds
+    public Vector3 OffsetPosition(Vector3 posIn)
+    {
+        return new Vector3(posIn.x,// + this.characterCollider.bounds.extents.x / 2f,
+                            posIn.y + unitCollider.bounds.extents.y,
+                            posIn.z);// + this.characterCollider.bounds.extents.z / 2f);
+    }
 
     protected void TurnToFaceTarget()
     {

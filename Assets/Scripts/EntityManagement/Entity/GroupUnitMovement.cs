@@ -115,13 +115,12 @@ public class GroupUnitMovement : Initializer, I_Movement
         Avoid = Vector3.zero;
 
         movementAction.Invoke();
-        float f = SetFacingDirection();
-
-        SpeedModifier = Mathf.Clamp((90 - f) / 90f, .5f, 1f);
-
-
+        
         if (MovementOrders != Vector3.zero) //the unit needs to update its position
         {
+            float f = SetFacingDirection();
+            SpeedModifier = Mathf.Clamp((90 - f) / 90f, .5f, 1f);
+
             Moving = true;
             nextPos = Pos + transform.forward.normalized * Speed * Time.deltaTime;
 
@@ -239,54 +238,50 @@ public class GroupUnitMovement : Initializer, I_Movement
 
     protected void MoveToTarget()
     {
-        if (C_Controller_Unit.C_SquadController.C_Vision.TargetAcquired)
+        var target = C_Controller_Unit.C_SquadController.C_AggresionSphere.Target;
+        if (target == null)
+            return;
+        if (Vector3.Distance(Pos, target.Pos) > 5f)//C_Controller.C_Entity.AttackManager.ActiveWeapon.WeaponRange) //the unit needs to update its position
         {
-            var target = C_Controller_Unit.C_SquadController.C_Vision.Target;
-            if (Vector3.Distance(Pos, target.Pos) > C_Controller.C_Entity.AttackManager.ActiveWeapon.WeaponRange) //the unit needs to update its position
-            {
-                MovementOrders = Vector3.zero;
-                Align = ((target.Pos) - Pos) * .05f;
+            MovementOrders = Vector3.zero;
+            Align = ((target.Pos) - Pos) * .05f;
 
-                int count = neighborUnits.Count;
-                if (neighborUnits.Count > 0)
+            int count = neighborUnits.Count;
+            if (neighborUnits.Count > 0)
+            {
+                foreach (GroupUnitMovement unit in neighborUnits)
                 {
-                    foreach (GroupUnitMovement unit in neighborUnits)
+                    if (unit == target.Owner_C_Controller.C_Movement)
                     {
-                        if (unit == target.Owner_C_Controller.C_Movement)
-                        {
-                            count--;
-                            continue;
-                        }
-                        distance = Vector3.Distance(unit.Pos, Pos);
-                        if (distance < DistanceThreshold / 3f)
-                        {
-                            Separation += (unit.Pos - Pos) * .5f;
-                            if (distance < closestObstacleDistance)
-                                closestObstacleDistance = distance;
-                        }
+                        count--;
+                        continue;
+                    }
+                    distance = Vector3.Distance(unit.Pos, Pos);
+                    if (distance < DistanceThreshold / 3f)
+                    {
+                        Separation += (unit.Pos - Pos) * .5f;
+                        if (distance < closestObstacleDistance)
+                            closestObstacleDistance = distance;
                     }
                 }
-                if (count > 0)
-                {
-                    Separation /= count;
-                    Separation *= -1f;
-                    Separation = Separation.normalized;
-                }
-
-                ////look for obstacles directly in front of the unit, try to avoid
-                //if (Physics.Raycast(transform.position, transform.forward, out hit, distanceThreshold / 2f, WorldGrid.mapFlag, QueryTriggerInteraction.Ignore))
-                //{
-                //    Avoid = (transform.position + (transform.forward * distanceThreshold / 2f) - hit.point);
-                //    Avoid = Avoid.normalized;
-                //    Debug.DrawRay(Pos, Avoid.normalized * distanceThreshold / 2f, Color.green);
-                //}
-
-                MovementOrders = Align;
-                MovementOrders += Separation;
-                MovementOrders += Avoid;
             }
-            DistanceToTarget = Vector3.Distance(Pos, target.Pos);
+            if (count > 0)
+            {
+                Separation /= count;
+                Separation *= -1f;
+                Separation = Separation.normalized;
+            }
+            MovementOrders = Align;
+            MovementOrders += Separation;
+            MovementOrders += Avoid;
         }
+        else
+        {
+            MovementOrders = ((target.Pos) - Pos);
+            SetFacingDirection();
+            MovementOrders = Vector3.zero;
+        }
+        DistanceToTarget = Vector3.Distance(Pos, target.Pos);
     }
 
     public void StartGroupMovement()

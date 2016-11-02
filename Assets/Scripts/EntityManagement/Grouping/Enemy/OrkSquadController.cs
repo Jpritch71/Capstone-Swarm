@@ -11,11 +11,12 @@ public class OrkSquadController : SquadController
     protected override void InitStart()
     {
         base.InitStart();
-        C_StateMachine = new StateMachine(null, new S_Squad_CommandIdle(this));
+        C_StateMachine = new StateMachine(null, new S_Squad_Idle(this));
     }
 
     protected override void GroupLogic()
     {
+        base.GroupLogic();
         if (C_StateMachine != null)
             C_StateMachine.ExecuteUpdate(); //update State Machine
 
@@ -40,8 +41,14 @@ public class OrkSquadController : SquadController
                         hit = hits[x];
                 }
                 //marker.transform.position = hit.point;
-                C_GridMovement.SetPathToPoint(hit.point);
+                AddOrder(new Order_SqaudMovement(this, false, hit.point));
             }
+        }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            I_Entity en = null;
+            if(EntityManager.GetEntityByUniqueID(PlayerEntity.PlayerID, ref en))
+                AddOrder(new Order_SquadSearchAndDestroy(this, false, (TaggableEntity)en));
         }
     }
 

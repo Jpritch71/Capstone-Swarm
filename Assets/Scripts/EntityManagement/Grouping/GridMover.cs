@@ -7,7 +7,6 @@ public class GridMover : A_GridMover
     protected override void InitAwake()
     {
         base.InitAwake();
-        unitCollider = GetComponent<CapsuleCollider>();
         thruster = GetComponent<Rigidbody>();
         BaseSpeed = 15f;
     }

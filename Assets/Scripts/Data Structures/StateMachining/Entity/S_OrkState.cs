@@ -26,12 +26,19 @@ public abstract class S_OrkState : I_State
 
     protected void ReturnToPreviousState()
     {
-        ownerOrk.C_StateMachine.ReturnToPreviousState();
+        ownerOrk.C_StateMachine.StartPreviousState();
     }
 
     public abstract void Execute();
     public abstract void OnStart();
     public abstract void OnStopped();
+
+    public void OnResume()
+    {
+    }
+    public void OnPause()
+    {
+    }
 }
 
 /// <summary>
@@ -53,8 +60,8 @@ public class S_Ork_Running : S_OrkState
         }
         if (ownerOrk.C_Movement.AttackMode)
         {
-            if (ownerOrk.C_Movement.DistanceToTarget <= ownerOrk.C_Entity.AttackManager.ActiveWeapon.WeaponRange)
-                SetControllerState(new S_Ork_Attack(ownerOrk));
+            //if (ownerOrk.C_Movement.DistanceToTarget <= ownerOrk.C_Entity.AttackManager.ActiveWeapon.WeaponRange)
+            //    SetControllerState(new S_Ork_Attack(ownerOrk));
         }
     }
 
@@ -89,8 +96,8 @@ public class S_Ork_Idle : S_OrkState
         }
         if(ownerOrk.C_Movement.AttackMode)
         {
-            if (ownerOrk.C_Movement.DistanceToTarget <= ownerOrk.C_Entity.AttackManager.ActiveWeapon.WeaponRange)
-                SetControllerState(new S_Ork_Attack(ownerOrk));
+            //if (ownerOrk.C_Movement.DistanceToTarget <= ownerOrk.C_Entity.AttackManager.ActiveWeapon.WeaponRange)
+            //    SetControllerState(new S_Ork_Attack(ownerOrk));
         }
     }
 

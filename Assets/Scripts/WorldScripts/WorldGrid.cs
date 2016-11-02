@@ -243,9 +243,7 @@ public class WorldGrid : MonoBehaviour
         {
             return tiles[x, z];
         }
-#pragma warning disable CS0168 // Variable is declared but never used
         catch (System.IndexOutOfRangeException e)
-#pragma warning restore CS0168 // Variable is declared but never used
         {
             if (x < 0)
                 x = 0;

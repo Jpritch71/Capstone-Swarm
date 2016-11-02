@@ -25,9 +25,15 @@ public abstract class S_PlayerState : I_State
     }
 
     public abstract void Execute();
-    public abstract void OnPaused();
     public abstract void OnStart();
     public abstract void OnStopped();
+
+    public void OnResume()
+    {
+    }
+    public void OnPause()
+    {
+    }
 }
 
 public class S_Player_Running : S_PlayerState
@@ -43,11 +49,6 @@ public class S_Player_Running : S_PlayerState
         {
             SetControllerState(new S_Player_Idle(ownerPlayer));
         }
-    }
-
-    public override void OnPaused()
-    {
-        throw new NotImplementedException();
     }
 
     public override void OnStart()
@@ -74,11 +75,6 @@ public class S_Player_Idle : S_PlayerState
         {
             SetControllerState(new S_Player_Running(ownerPlayer));
         }
-    }
-
-    public override void OnPaused()
-    {
-        throw new NotImplementedException();
     }
 
     public override void OnStart()

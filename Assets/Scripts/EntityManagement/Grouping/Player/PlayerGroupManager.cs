@@ -10,8 +10,8 @@ public class PlayerGroupManager : SquadController
     protected override void InitAwake()
     {
         base.InitAwake();
-        C_AttachedGameObject.transform.Find("VisionObject").gameObject.AddComponent<SquadVision>();
-        C_Vision = C_AttachedGameObject.transform.Find("VisionObject").gameObject.GetComponent<SquadVision>();
+        C_AttachedGameObject.transform.Find("VisionObject").gameObject.AddComponent<SquadAggresionRange>();
+        C_AggresionSphere = C_AttachedGameObject.transform.Find("VisionObject").gameObject.GetComponent<SquadAggresionRange>();
     }
 
     protected override void InitStart()
@@ -29,8 +29,8 @@ public class PlayerGroupManager : SquadController
 
         playerUnit.SquadSendInit();
 
-        C_AttachedGameObject.transform.Find("VisionObject").gameObject.AddComponent<SquadVision>();
-        C_Vision = C_AttachedGameObject.transform.Find("VisionObject").gameObject.GetComponent<SquadVision>();
+        C_AttachedGameObject.transform.Find("VisionObject").gameObject.AddComponent<SquadAggresionRange>();
+        C_AggresionSphere = C_AttachedGameObject.transform.Find("VisionObject").gameObject.GetComponent<SquadAggresionRange>();
     }
 
     void Update()
@@ -63,6 +63,4 @@ public class PlayerGroupManager : SquadController
             g.DistanceThreshold = radiusIn * 2;
         }
     }
-
-    public I_Vision C_Vision { get; protected set; }
 }

@@ -55,12 +55,24 @@ public class StateMachine
         CurrentState.OnStart(); //tell the new state it has started.
     }
 
-    public void ReturnToPreviousState()
+    public void StartPreviousState()
     {
         CurrentState.OnStopped(); //tell the previous state it is stopped
 
         CurrentState = PreviousState; //set the new state
         CurrentState.OnStart(); //tell the new state it has started.
+    }
+
+    public void GoIntoBlip(A_Blip blipIn)
+    {
+        CurrentState.OnPause();
+        blipIn.ExecuteBlip();
+    }
+
+    public void ReturnToPreviousState()
+    {
+        CurrentState = PreviousState; //set the new state
+        CurrentState.OnResume(); //tell the new state it has started.
     }
 }
 

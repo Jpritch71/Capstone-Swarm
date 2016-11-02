@@ -5,13 +5,23 @@ using System.Collections.Generic;
 
 public abstract class SquadController : GroupManager
 {
+    public A_SquadOrder CurrentOrder { get; protected set; }
+    public bool HuntOrder { get; protected set; }
+    public bool OrderWaiting { get { return orders.Count > 0; } }
+    protected Queue<A_SquadOrder> orders;
+
+
     [SerializeField]
     private bool _AttackMode = false;
     public bool AttackMode { get { return _AttackMode; } set { _AttackMode = value; } }
+
+    public MovementSignaler EntityTracker { get; protected set; }
     private RaycastHit[] hits; //variable for storing temporary RaycastHit array
     private RaycastHit hit;
 
-    protected HashSet<I_Entity> TargetsToHunt;
+    //protected HashSet<int> TargetsToHunt;
+
+    
 
     // Use this for initialization
     protected override void InitAwake()
@@ -19,21 +29,35 @@ public abstract class SquadController : GroupManager
         base.InitAwake();
         C_Movement = GetComponent<A_GridMover>();
         C_GroupManager = GetComponent<GroupManager>();
+        orders = new Queue<A_SquadOrder>();
 
-        TargetsToHunt = new HashSet<I_Entity>();
+        //TargetsToHunt = new HashSet<int>();
 
-        C_AttachedGameObject.transform.Find("VisionObject").gameObject.AddComponent<SquadVision>();
-        C_Vision = C_AttachedGameObject.transform.Find("VisionObject").gameObject.GetComponent<SquadVision>();
+        C_AttachedGameObject.transform.Find("VisionObject").gameObject.AddComponent<SquadAggresionRange>();
+        C_AggresionSphere = C_AttachedGameObject.transform.Find("VisionObject").gameObject.GetComponent<SquadAggresionRange>();
     }
 
     protected override void InitStart()
     {
         base.InitStart();
         C_GridMovement.BaseSpeed = 9f;
-        C_Vision.VisionRange = 10f;
+        C_AggresionSphere.AggressionRange = 10f;
         //LoadStats();
     }
 
+    protected override void GroupLogic()
+    {
+        if(EntityTracker != null)
+        {
+            if(EntityTracker.MovementSignal)
+            {
+                MoveToEntity(EntityTracker.TrackedEntity);
+                EntityTracker.AcknowledgeSignal();
+            }
+        }
+    }
+
+    #region MovementControls
     public void Start_NormalMovement()
     {
         AttackMode = false;
@@ -51,21 +75,90 @@ public abstract class SquadController : GroupManager
             unit.StartMovingToTarget();
         }
     }
+    #endregion
 
-    public void AddTargetToHunt(I_Entity entityIn)
+    #region AttackOrders
+    public void StartHuntingTarget(TaggableEntity entityIn)
     {
+        if (EntityTracker != null)
+        {
+            EntityTracker.KillSignaler();
+            EntityTracker = null;
+        }
+        EntityTracker = new MovementSignaler(entityIn, 1f);
+        MoveToEntity(entityIn);
+    }
 
+    public void AddHuntTargetOrder(I_Entity entityIn)
+    {
+        StartHuntingTarget((TaggableEntity)entityIn);
+    }
+    #endregion
+
+    #region MovementOrders
+    protected bool movingToEntity = false;
+    public void MoveToEntity(TaggableEntity entityIn)
+    {
+        movingToEntity = true;
+        C_GridMovement.SetPathToPoint(entityIn.Pos);
     }
 
     public void MoveToEntity(I_Entity entityIn)
     {
-
+        movingToEntity = true;
+        C_GridMovement.SetPathToPoint(entityIn.Pos);
     }
 
-    public void ClearTarget()
+    public void MoveToPosition(Vector3 posIn)
     {
-        Start_NormalMovement();
+        C_GridMovement.SetPathToPoint(posIn);
     }
+
+    public void MoveToPosition(Node posIn)
+    {
+        C_GridMovement.SetPathToNode(posIn);
+    }
+    #endregion
+
+    public void AddOrder(A_SquadOrder orderIn)
+    {
+        Debug.Log(orderIn);
+        if (orders.Count == 0 && CurrentOrder == null)
+        {
+            CurrentOrder = orderIn;
+            return;
+        }
+        orders.Enqueue(orderIn);       
+    }
+
+    public void OrderExited(bool previousOrderCompleted)
+    {
+        if (EntityTracker != null)
+        {
+            EntityTracker.KillSignaler();
+            EntityTracker = null;
+        }
+        if (orders.Count > 0)
+        {
+            A_SquadOrder nextOrder = orders.Dequeue();
+            var a = nextOrder.OrderValidation();
+            if (nextOrder.OrderValidation())
+            {
+                CurrentOrder = nextOrder;
+                return;
+            }
+        }
+        CurrentOrder = null;
+    }
+
+    //public void CancelOrder()
+    //{
+    //    if (EntityTracker != null)
+    //    {
+    //        EntityTracker.KillSignaler();
+    //        EntityTracker = null;
+    //    }
+    //}
 
     //public abstract void LoadStats();
     #region Components
@@ -89,7 +182,7 @@ public abstract class SquadController : GroupManager
         get; protected set;
     }
 
-    public I_Vision C_Vision { get; protected set; }    
+    public I_Sight C_AggresionSphere { get; protected set; }    
     #endregion
 }
 
