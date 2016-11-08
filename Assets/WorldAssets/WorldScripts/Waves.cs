@@ -42,7 +42,7 @@ public class Waves : MonoBehaviour
         for (int i = 0; i < vertices.Length; i++)
         {
             Vector3 vertex = baseHeight[i];
-            Random.seed = (int)((vertex.x + noiseOffset) * (vertex.x + noiseOffset) + (vertex.z + noiseOffset) * (vertex.z + noiseOffset));
+            Random.InitState((int)((vertex.x + noiseOffset) * (vertex.x + noiseOffset) + (vertex.z + noiseOffset) * (vertex.z + noiseOffset)));
             vertex.y += Mathf.Sin(Time.time * speed + baseHeight[i].x * waveLength + baseHeight[i].y * waveLength) * waveHeight;
             vertex.y += Mathf.Sin(Mathf.Cos(Random.value * 1.0f) * randomHeight * Mathf.Cos(Time.time * randomSpeed * Mathf.Sin(Random.value * 1.0f)));
             //vertex.y += Mathf.PerlinNoise(baseHeight[i].x + Mathf.Cos(Time.time * 0.1f) + noiseWalk, baseHeight[i].y + Mathf.Sin(Time.time * 0.1f)) * noiseStrength;

@@ -228,6 +228,26 @@ public class Node : System.IComparable<Node>
         }
     }
 
+    public Node NearestWalkableNode(int count)
+    {
+        count++;
+        if (count > 10)
+            return null;
+        Node walkableNode = null;
+        if (this.walkable)
+        {
+            return this;
+        }
+        else
+        {           
+            foreach(Node n in Neighbors)
+            {
+                walkableNode = n.NearestWalkableNode(count);
+            }
+        }
+        return walkableNode;
+    }
+
 	/*
 	 * I DON'T KNOW IF I NEED THIS METHOD AT ALL
 	 * */

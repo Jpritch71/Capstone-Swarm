@@ -16,12 +16,12 @@ TagManager:
   - 
   - Walkable
   - NotWalkable
-  - 
+  - EntityUtility
   - Player
   - Enemy
   - Obstacle
-  - 
-  - 
+  - GhostMover
+  - Projectile
   - 
   - 
   - 

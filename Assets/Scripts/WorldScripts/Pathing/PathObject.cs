@@ -5,6 +5,7 @@ public class PathObject
 {
     public bool pathFound { get; set; }
     public bool pathFailed { get; set; }
+    public bool impossiblePath { get; set; }
     public List<Node> path;
     public Node startNode { get; set; }
     public Node targetNode { get; set; }
@@ -18,6 +19,7 @@ public class PathObject
     public PathObject()
     {
         pathFailed = false;
+        impossiblePath = false;
     }
 
     public void setPath(List<Node> pathIn)

@@ -183,7 +183,7 @@ public class WorldGrid : MonoBehaviour
 		} 
 		this.gameObject.SetActive(false);
 		this.gameObject.SetActive(true);
-        print(WorldNodeCount());
+        //print(WorldNodeCount());
     }
 
     void Update()
