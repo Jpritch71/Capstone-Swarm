@@ -7,8 +7,8 @@ public class MissileAcel : BasicProjectile
     // Use this for initialization
     void Start()
     {
-        thruster = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        thruster = GetComponent<Rigidbody>();
+        render = GetComponent<Renderer>();
 
         sparks = transform.Find("GunSparks").gameObject;
         halo = transform.Find("RocketHalo").gameObject;

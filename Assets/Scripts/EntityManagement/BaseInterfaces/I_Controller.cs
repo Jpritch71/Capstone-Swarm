@@ -5,6 +5,8 @@ public interface I_Controller
 {
     int EntityLayer { get; }
 
+    I_Entity Target { get; }
+
     #region Components
     GroupUnitMovement C_Movement { get; }
     I_Entity C_Entity { get; }    

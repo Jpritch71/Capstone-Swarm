@@ -5,7 +5,7 @@ using Combat;
 
 public class MeleeAttack : A_Attack
 {   
-    public MeleeAttack(I_Entity attackingEntityIn, MeleeWeapon weaponIn, float durationIn) : base(attackingEntityIn, AttackMethod.Melee, weaponIn, durationIn)
+    public MeleeAttack(I_Entity attackingEntityIn, MeleeWeapon weaponIn, float durationIn, string attackNameIn) : base(attackingEntityIn, AttackMethod.Melee, weaponIn, durationIn, attackNameIn)
     {
         MethodOfAttack = AttackMethod.Melee;
     }
@@ -34,7 +34,7 @@ public class MeleeAttack : A_Attack
             if (c.gameObject.layer == attackerLayer)
                 continue;
             if(EntityManager.GetEntityByCollider(c, ref en))
-            DamageControl.DamageController.Instance.AddDamageToTarget(en, 10f);
+            DamageControl.DamageController.Instance.AddDamageToTarget(en, AttackingWeapon.BaseAttackPower);
         }
         collidersHit = null;
     }

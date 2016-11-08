@@ -51,8 +51,8 @@ public class WeaponPlatform : MonoBehaviour
 
     void Awake () 
     {
-        gunBarrel = transform.Find("Turret").gameObject;
-        projectilePoint = gunBarrel.transform.Find("TargetPoint").gameObject;
+        gunBarrel = transform.Find("TurretPivot").gameObject;
+        projectilePoint = gunBarrel.transform.Find("AttackPoint").gameObject;
 
         //AffixWeapon(WeaponManager.GunTag.AutoCannon);
         //activeAmmo = BaseBullet;
@@ -72,7 +72,7 @@ public class WeaponPlatform : MonoBehaviour
     {    
         if (PlatformWeapons == null)
         {
-            print("creating weapon list");
+            //print("creating weapon list");
             PlatformWeapons = new Dictionary<WeaponManager.WeaponTag, WeaponStats>();
         }
         //print("Adding Weapon tagged as [" + typeIn + "]");
@@ -122,7 +122,7 @@ public class WeaponPlatform : MonoBehaviour
         {
             launchAction = SingleLaunch;
         }
-        SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
+        //SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
     }
     #endregion
 
@@ -145,13 +145,13 @@ public class WeaponPlatform : MonoBehaviour
     public void AddAmmo(int x)
     {
         loadedWeapon.ammo.AddAmmo(x);
-        SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
+        //SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
     }    
 
     public void AddAmmo_BATCH()
     {
         AddAmmo(loadedWeapon.clipSize);
-        SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
+        //SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
     }
 
     public void AddAmmo_BATCH(WeaponManager.WeaponTag tagIn)
@@ -161,19 +161,19 @@ public class WeaponPlatform : MonoBehaviour
         {
             wep.ammo.AddAmmo(wep.clipSize);
         }
-        SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
+        //SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
     }
 
     public void AddAmmo_BATCH(WeaponStats wep)
     {
         wep.ammo.AddAmmo(wep.clipSize);
-        SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
+        //SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
     }
 
     public void AddAmmo_BATCHES(int x)
     {
         AddAmmo(loadedWeapon.clipSize * x);
-        SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
+        //SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
     }
     
     public void AddAmmo_BATCHES(WeaponManager.WeaponTag tagIn, int x)
@@ -183,13 +183,13 @@ public class WeaponPlatform : MonoBehaviour
         {
             wep.ammo.AddAmmo(wep.clipSize * x);
         }
-        SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
+        //SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
     }
 
     public void AddAmmo_BATCHES(WeaponStats wep, int x)
     {
         wep.ammo.AddAmmo(wep.clipSize * x);
-        SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
+        //SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
     }
 
     protected void OutOfAmmo()
@@ -318,18 +318,18 @@ public class WeaponPlatform : MonoBehaviour
             OutOfAmmo();
     }
 
-    public void Launch(Vector2 targetIn)
+    public void Launch(Vector3 targetIn)
     {
         if (ammoCount > 0 && roundsFromClipFired < loadedWeapon.clipSize)
         {
             roundsFromClipFired++;
             float f = GetFallOffSpread(targetIn);
-            targetIn = new Vector2(targetIn.x + UnityEngine.Random.Range(-f, f), targetIn.y + UnityEngine.Random.Range(-f, f));                        
+            targetIn = new Vector3(targetIn.x + UnityEngine.Random.Range(-f, f), targetIn.y + UnityEngine.Random.Range(-f, f), targetIn.z + UnityEngine.Random.Range(-f, f));                        
 
             READY_SHOT = loadedWeapon.ammo.ExpendNextRound();
             READY_SHOT.Loc = projectilePoint.transform.position;
             READY_SHOT.Launch(targetIn);
-            SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
+            //SARSiteUI._Instance.ammoString = "Ammo: " + ammoCount;
         }
         else if(roundsFromClipFired >= loadedWeapon.clipSize)
         {
@@ -358,9 +358,9 @@ public class WeaponPlatform : MonoBehaviour
                                      }, null, false, false, this);
     }
 
-    protected virtual float GetFallOffSpread(Vector2 targetLocIn)
+    protected virtual float GetFallOffSpread(Vector3 targetLocIn)
     {
-        return 1 - Mathf.Clamp(1 - loadedWeapon.fallOffFactor * (Vector2.Distance(transform.position, targetLocIn) - loadedWeapon.fallOffDistance), 0, 1);
+        return 1 - Mathf.Clamp(1 - loadedWeapon.fallOffFactor * (Vector3.Distance(transform.position, targetLocIn) - loadedWeapon.fallOffDistance), 0, 1);
     }
     #endregion
 
@@ -545,14 +545,14 @@ public class AmmoBay
         z = (int)((1f / ((weaponIn.coolDown) + 0.01f)) * 10f);
         //rounds = new Projectile[600];
         GameObject model, g;
-        model = GameObject.Instantiate(bayAmmo.ammoModel, new Vector2(-99, -99), Quaternion.identity) as GameObject;
+        model = GameObject.Instantiate(bayAmmo.ammoModel, new Vector3(-99, -99, -99), Quaternion.identity) as GameObject;
         AddProjectile_ByString(bayAmmo.projectileType, model);
 
         int y = rounds.Length;
 
         for (int x = 0; x < rounds.Length; ++x)
         {
-            g = GameObject.Instantiate(model, new Vector2(-99, -99), Quaternion.identity) as GameObject;
+            g = GameObject.Instantiate(model, new Vector3(-99, -99, -99), Quaternion.identity) as GameObject;
             rounds[x] = g.GetComponent<I_Projectile>();
             rounds[x].Init(parameters);
             rounds[x].Set_OffState();

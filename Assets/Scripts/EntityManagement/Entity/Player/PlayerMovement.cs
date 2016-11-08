@@ -80,14 +80,16 @@ public class PlayerMovement : A_GridMover
     public void StartFreeMoving()
     {
         directionalMovement = true;
+        Moving = true;
     }
 
     public void EndFreeMove()
     {
         directionalMovement = false;
+        Moving = false;
     }
 
-	public override void TargetNodeReached()
+	public override void TargetNodeReachedWork()
 	{
         Debug.Log("Target Reached");
         Moving = false;

@@ -7,11 +7,11 @@ public class PlayerEntity : TaggableEntity
 {    
     public static int PlayerID;
     public GameObject C_AttatchedGameObject { get; protected set; }
-    public new int Unique_ID { get { return C_AttatchedGameObject.GetInstanceID(); } }
+    public override int Unique_ID { get { return C_AttatchedGameObject.GetInstanceID(); } }
 
     public PlayerEntity(I_Controller controllerMonoBehavior, float baseIntegrityIn, int levelIn)
     {
-        AttackManager = new WeaponContainer();
+        WeaponManager = new WeaponContainer();
         Owner_C_Controller = controllerMonoBehavior;
         C_AttatchedGameObject = GameObject.Find("PlayerUnit");
         C_AttatchedGameObject.AddComponent<Entity_MonoBehaviour>();
@@ -22,7 +22,7 @@ public class PlayerEntity : TaggableEntity
         C_Collider = C_MonoBehavior.GetComponent<Collider>();
         int ID = EntityManager.AddEntity_GenerateID(ref en);
 
-        EntityLevel = 1;
+        EntityLevel = levelIn;
         DefenseModifiers = new CombatModifierHandler();
 
         Killable = true;
@@ -35,13 +35,25 @@ public class PlayerEntity : TaggableEntity
     {
         get
         {
-            C_MonoBehavior._MSG("GET THE PLAYER USERNAME");
-            throw new NotImplementedException();
+            return PlayerStats.PlayerStatContainer._PlayerInfo.UserName;
         }
     }
 
     protected override void DeathWork()
     {
         C_MonoBehavior._MSG("Player Dead");
+        GameObject.Find("warrior2swords").GetComponent<Renderer>().enabled = false;
+        GameManager._Instance.GameOver();
+    }
+
+    public override void UpdateAction()
+    {
+        AddIntegrity(1f);
+    }
+
+    public override void IncurDamage(float damageIn)
+    {
+        base.IncurDamage(damageIn);
+        SARSiteUI._Instance.s_health = "|Health|\n" + string.Format("{0:0.0%}", (Integrity / BaseIntegrity));
     }
 }

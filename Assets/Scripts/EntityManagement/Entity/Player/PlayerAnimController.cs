@@ -20,6 +20,12 @@ public class PlayerAnimController
     {
         playerAnim.Play("idle");
     }
+
+    public void StartAttack()
+    {
+        playerAnim.Play("attack");
+    }
 }
+
 
 

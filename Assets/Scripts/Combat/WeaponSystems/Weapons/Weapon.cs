@@ -21,12 +21,33 @@ public abstract class Weapon
     public int SoulsTaken { get; protected set; }
     public WeaponType TypeOfWeapon { get; protected set; }
 
-    public bool Attacking { get; set; }
+    private bool _attacking = false;
+    public bool Attacking
+    {
+        get
+        {
+            return _attacking;
+        }
+        set
+        {
+            _attacking = value;
+            if(_attacking)
+            {
+                OwnerContainer.SetActiveWeapon(this);
+            }
+        }
+    }
 
     /// <summary>
     /// Maximum range at which this weapon can do an attack.
     /// </summary>
     public float WeaponRange { get; protected set; }
+
+    public float BaseAttackPower { get; protected set; }
+
+    public MonoBehaviour AttackTimerKiller { get; protected set; }
+
+    public WeaponContainer OwnerContainer { get; protected set; }
 
     public Weapon(Transform weaponObjectIn, WeaponType weaponTypeIn)
     {
@@ -37,9 +58,10 @@ public abstract class Weapon
         weaponAttackPoint = WeaponGameObject.Find("AttackPoint");
         Name = WeaponGameObject.name.Substring(7);
         SoulsTaken = 0;
+        BaseAttackPower = 100f;
     }
 
-    public Weapon(Transform weaponObjectIn, WeaponType weaponTypeIn, float rangeIn, string nameIn, int soulsIn)
+    public Weapon(WeaponContainer containerIn, MonoBehaviour attackTimerKillerIn, Transform weaponObjectIn, WeaponType weaponTypeIn, float rangeIn, string nameIn, int soulsIn, float powerIn)
     {
         CreateUniqueWeaponID();
         Weapon_Attacks = new Dictionary<int, A_Attack>();
@@ -49,6 +71,12 @@ public abstract class Weapon
         WeaponRange = rangeIn;
         Name = nameIn;
         SoulsTaken = soulsIn;
+
+        BaseAttackPower = powerIn;
+
+        AttackTimerKiller = attackTimerKillerIn;
+
+        OwnerContainer = containerIn;
     }
 
     public bool DoAttack()
@@ -68,6 +96,7 @@ public abstract class Weapon
             A_Attack att = null;
             if (Weapon_Attacks.TryGetValue(attackID, out att))
             {
+                SetActiveAttack(att);
                 att.DoAttack();
                 return true;
             }        
@@ -78,11 +107,11 @@ public abstract class Weapon
     public void AddAttack(int idIn, A_Attack attackIn)
     {
         if (ActiveAttack == null)
-            SetAutoAttack(attackIn);
+            SetActiveAttack(attackIn);
         Weapon_Attacks.Add(idIn, attackIn);
     }
 
-    public void SetAutoAttack(A_Attack attackIn)
+    public void SetActiveAttack(A_Attack attackIn)
     {
         ActiveAttack = attackIn;
     }
@@ -97,6 +126,16 @@ public abstract class Weapon
             return true;
         }
         return false;
+    }
+
+    public A_Attack GetAttackByID(int attackIDin)
+    {
+        A_Attack att = null;
+        if (Weapon_Attacks.TryGetValue(attackIDin, out att))
+        {
+            return att;
+        }
+        return null;
     }
 
     public abstract Collider[] AffectedColliders();

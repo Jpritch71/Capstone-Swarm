@@ -7,12 +7,12 @@ namespace DamageControl
     {
         public float Damage { get; protected set; } //amount of base damage this entity deals 
         protected float radius; //radius that the damage entity will affect
-        protected Vector2 pos;  //position in world space of the entity
+        protected Vector3 pos;  //position in world space of the entity
 
         public Damage_Area()
         {
             radius = 1f;
-            pos = new Vector3(-999, -999);
+            pos = new Vector3(-999, -999, -999);
             Damage = 100f;
             TryDamage();
         }
@@ -27,17 +27,19 @@ namespace DamageControl
 
         public void TryDamage()
         {
-            //Debug.Log("tryDamn");
+            //Debug.Log("tryDamn at " + pos);
             //Debug.DrawRay(pos, (Vector2.up - new Vector2(pos.x, pos.y)) * radiusIn);
-            foreach (Collider c in Physics.OverlapSphere(pos, radius))
+            I_Entity en = null;
+            foreach (Collider c in Physics.OverlapSphere(pos, radius, (int)Flags.Entities))
             {
-                //Debug.Log("foundDamn");
-                I_Entity en = c.GetComponent<I_Entity>();
-                if (en != null)
-                {
-                    en.IncurDamage(Damage);
-                    //Debug.Log("Damage[" + Damage + "] to " + en.AttachedGameObject.name);
-                }
+                //Debug.Log("got collider");
+                if (EntityManager.GetEntityByCollider(c, ref en))
+                    if (en != null)
+                    {
+                        //Debug.Log("damage entity: " + en);
+                        en.IncurDamage(Damage);
+                        //Debug.Log("Damage[" + Damage + "] to " + en.AttachedGameObject.name);
+                    }
             }
         }
     }

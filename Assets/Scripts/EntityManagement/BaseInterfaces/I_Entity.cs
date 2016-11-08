@@ -5,7 +5,7 @@ using Combat;
 
 public interface I_Entity
 {
-    WeaponContainer AttackManager { get; }
+    WeaponContainer WeaponManager { get; }
     int Unique_ID { get; }
 
     //bool Initialized { get; }
@@ -34,6 +34,8 @@ public interface I_Entity
     CombatModifierHandler DefenseModifiers { get; }
 
     Vector3 Pos { get; }
+
+    void UpdateAction();
 }
 
 

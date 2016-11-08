@@ -107,8 +107,10 @@ public class GroupUnitMovement : Initializer, I_Movement
     protected Action movementAction;
     protected void MovementPhase()
     {
+        if (C_Controller_Unit.C_Entity.Dead)
+            return;
         closestObstacleDistance = DistanceThreshold;
-        distanceFromCenter = Vector3.Distance(Pos, Squad.CenterOfMass);
+        distanceFromCenter = Vector2.Distance(new Vector2(Pos.x, Pos.z), new Vector2(Squad.CenterOfMass.x, Squad.CenterOfMass.z));
         Align = Vector3.zero;
         Cohesion = Vector3.zero;
         Separation = Vector3.zero;
@@ -119,12 +121,12 @@ public class GroupUnitMovement : Initializer, I_Movement
         if (MovementOrders != Vector3.zero) //the unit needs to update its position
         {
             float f = SetFacingDirection();
-            SpeedModifier = Mathf.Clamp((90 - f) / 90f, .5f, 1f);
+            SpeedModifier = Mathf.Clamp((105 - f) / 90f, .15f, 1f);
 
             Moving = true;
             nextPos = Pos + transform.forward.normalized * Speed * Time.deltaTime;
 
-            hits = Physics.SphereCastAll(nextPos + (Vector3.up * characterCollider.bounds.size.y), characterCollider.radius * .1f, Vector3.down, 5f, (1 << 8));
+            hits = Physics.SphereCastAll(nextPos + (Vector3.up * 5f), characterCollider.radius * .1f, Vector3.down, 10f, (1 << 8));
             if (hits.Length > 0)
             {
                 hit = hits[0];
@@ -241,7 +243,7 @@ public class GroupUnitMovement : Initializer, I_Movement
         var target = C_Controller_Unit.C_SquadController.C_AggresionSphere.Target;
         if (target == null)
             return;
-        if (Vector3.Distance(Pos, target.Pos) > 5f)//C_Controller.C_Entity.AttackManager.ActiveWeapon.WeaponRange) //the unit needs to update its position
+        if (Vector3.Distance(Pos, target.Pos) > C_Controller.C_Entity.WeaponManager.ActiveWeapon.WeaponRange) // && !(C_Controller_Unit.C_Entity.AttackManager.ActiveWeapon.ActiveAttack.AttackCompleted)) //the unit needs to update its position
         {
             MovementOrders = Vector3.zero;
             Align = ((target.Pos) - Pos) * .05f;
@@ -257,7 +259,7 @@ public class GroupUnitMovement : Initializer, I_Movement
                         continue;
                     }
                     distance = Vector3.Distance(unit.Pos, Pos);
-                    if (distance < DistanceThreshold / 3f)
+                    if (distance < DistanceThreshold / 1.7f)
                     {
                         Separation += (unit.Pos - Pos) * .5f;
                         if (distance < closestObstacleDistance)
@@ -272,7 +274,7 @@ public class GroupUnitMovement : Initializer, I_Movement
                 Separation = Separation.normalized;
             }
             MovementOrders = Align;
-            MovementOrders += Separation;
+            MovementOrders += Separation * 1.1f;
             MovementOrders += Avoid;
         }
         else
@@ -350,9 +352,10 @@ public class GroupUnitMovement : Initializer, I_Movement
     {
         try
         {
-            if (MovementOrders == Vector3.zero)
+            Vector3 order = new Vector3(MovementOrders.x, 0, MovementOrders.z);
+            if (order == Vector3.zero)
                 return 0;
-            lookRot = Quaternion.LookRotation(new Vector3(MovementOrders.x, 0, MovementOrders.z));
+            lookRot = Quaternion.LookRotation(order);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * TurnSpeed);
             return Mathf.Abs(lookRot.eulerAngles.y - transform.rotation.eulerAngles.y);
         }
@@ -475,7 +478,8 @@ public class GroupUnitMovement : Initializer, I_Movement
     protected SphereCollider collisionAvoidanceCollider;
     protected List<GroupUnitMovement> neighborUnits = new List<GroupUnitMovement>();
     protected List<GameObject> neighborColliders = new List<GameObject>();
-    private const int AVOID_FLAG = ((int)Flags.EntityUtilities | (int)Flags.Obstacles);
+    protected Dictionary<GroupUnitMovement, NeighbourUnitTag> pendingUnitTags = new Dictionary<GroupUnitMovement, NeighbourUnitTag>();
+    private const int AVOID_FLAG = ((int)Flags.Entities | (int)Flags.Obstacles);
     void OnTriggerEnter(Collider other)
     {
         int bitwise = (1 << other.gameObject.layer) & AVOID_FLAG;
@@ -489,9 +493,9 @@ public class GroupUnitMovement : Initializer, I_Movement
         }
         var unitComponent = other.transform.parent.GetComponent<GroupUnitMovement>();
 
-        if (unitComponent != this && Squad.C_Squad_HashSet.Contains(unitComponent))
+        if (unitComponent != null && unitComponent != this && !neighborUnits.Contains(unitComponent))// && Squad.C_Squad_HashSet.Contains(unitComponent))
         {
-            neighborUnits.Add(unitComponent);
+            AddNeighbourUnit(unitComponent);
         }
     }
 
@@ -501,14 +505,42 @@ public class GroupUnitMovement : Initializer, I_Movement
         if (bitwise == 0) //if 0, the other collider is not on a layer we are interested in (Enemy, player, obstacle)
             return;
 
+        var a = other.transform.parent;
+        if (a == null)
+            return;
         var unitComponent = other.transform.parent.GetComponent<GroupUnitMovement>();
 
         if (unitComponent != null && unitComponent != this)
-            neighborUnits.Remove(unitComponent);
+            RemoveNeighbourUnit_ClearTag(unitComponent);
         else if (other.gameObject.layer == 13)
         {
             neighborColliders.Remove(other.gameObject);
         }
+    }
+
+    public void AddNeighbourUnit(GroupUnitMovement unitIn)
+    {
+        neighborUnits.Add(unitIn);
+        NeighbourUnitTag tag = new NeighbourUnitTag(this, unitIn);
+        ((TaggableEntity)unitIn.C_Controller_Unit.C_Entity).TagEntity(tag);
+        pendingUnitTags.Add(unitIn, tag);
+    }
+
+    public void RemoveNeighbourUnit(GroupUnitMovement unitIn)
+    {
+        neighborUnits.Remove(unitIn);    
+        pendingUnitTags.Remove(unitIn);
+    }
+
+    protected void RemoveNeighbourUnit_ClearTag(GroupUnitMovement unitIn)
+    {
+        NeighbourUnitTag tag = null;
+        if (pendingUnitTags.TryGetValue(unitIn, out tag))
+        {
+            ((TaggableEntity)unitIn.C_Controller_Unit.C_Entity).RemoveTag(tag);
+
+        }
+        RemoveNeighbourUnit(unitIn);
     }
 
     #region components
@@ -520,4 +552,20 @@ public class GroupUnitMovement : Initializer, I_Movement
     }
     public GroupUnitController C_Controller_Unit { get; protected set; }
     #endregion
+}
+
+public class NeighbourUnitTag : I_EntityTag
+{
+    private GroupUnitMovement movingUnit;
+    private GroupUnitMovement taggedEntity_Movement;
+    public NeighbourUnitTag(GroupUnitMovement movingUnitIn, GroupUnitMovement entityIn)
+    {
+        movingUnit = movingUnitIn;
+        taggedEntity_Movement = entityIn;
+    }
+
+    public void TagAction()
+    {
+        movingUnit.RemoveNeighbourUnit(taggedEntity_Movement);
+    }
 }

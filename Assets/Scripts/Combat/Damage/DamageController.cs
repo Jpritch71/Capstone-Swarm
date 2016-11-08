@@ -47,18 +47,11 @@ namespace DamageControl
 
         void FixedUpdate()
         {
-            //if (removalQueue.Count > 0)
-            //    removalQueue.Clear();
             if (addQueue.Count > 0)
             {
                 d_OverTime.AddRange(addQueue);
                 addQueue.Clear();
             }
-            //foreach (Damage_Area d in d_Area)
-            //{
-            //    d.TryDamage();
-            //    removalQueue.Add(d);
-            //}
             foreach (Damage_AreaForTime d in d_OverTime)
             {
                 if (d.Update())

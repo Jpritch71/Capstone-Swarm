@@ -11,9 +11,13 @@ public interface I_Projectile
     // void Init(float velocityIn, float damageIn);
     void Init(object[] paramsIn);
     void Launch(Vector3 targetIn);
+    void Launch(Vector3 targetIn, Flags ignoreLayer);
+    void Launch(Vector3 targetIn, int ignoreLayer);
     void ActivateDamage();
     void DestroySelf();
     void Set_OffState();
 
     GameObject _GameObject { get; }
+
+    
 }

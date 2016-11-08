@@ -12,8 +12,8 @@ public class LanceProjectile : BasicProjectile
 
     public override void Init(object[] paramsIn)
     {
-        thruster = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        thruster = GetComponent<Rigidbody>();
+        render = GetComponent<Renderer>();
 
         sparks = transform.Find("GunSparks").gameObject;
         halo = transform.Find("RocketHalo").gameObject;
@@ -41,7 +41,7 @@ public class LanceProjectile : BasicProjectile
         yield return new WaitForEndOfFrame();
         #region LaunchAndVectoring
         thruster.isKinematic = false; //make rigidbody physical
-        thruster.gravityScale = startingGravityScale;
+        //thruster.gravityScale = startingGravityScale;
         direction = targetIn;
         direction = new Vector3(direction.x, direction.y, transform.position.z) - transform.position;
         direction.Normalize();
@@ -61,7 +61,7 @@ public class LanceProjectile : BasicProjectile
         #endregion
 
         halo.SetActive(true); //turn on light
-        spriteRenderer.color = Color.white; //make sprite visible 
+        render.enabled = true;
 
         var e = explosion.GetComponent<ParticleSystem>().emission;
         explosion.GetComponent<ParticleSystem>().Stop(true);

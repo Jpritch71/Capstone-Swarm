@@ -5,6 +5,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(SphereCollider))] //total volume presence of the group
 public abstract class GroupManager : Initializer
 {
+    public bool GroupDead { get { return LeaderUnit == null; } }
     public virtual int GroupLayer { get { return (1 << 12); } }
     protected Vector3 lastPos, deltaMovement;
     protected int gridedWeight;
@@ -52,6 +53,12 @@ public abstract class GroupManager : Initializer
     // Update is called once per frame
     void Update()
     {
+        if (GroupDead)
+        {
+            Destroy(this.gameObject);
+            Destroy(squadObject.gameObject);
+            return;
+        }
         UpdateGroup();
         GroupLogic();
     }
@@ -131,11 +138,34 @@ public abstract class GroupManager : Initializer
 
     protected void AddSquadMember(GroupUnitMovement unitIn)
     {
+        if (unitIn == null)
+            return;
+
         C_Squad_List.Add(unitIn);
         C_Squad_HashSet.Add(unitIn);
         GroupUnitController unitController = unitIn.C_Controller_Unit;
         C_SquadControllers_HashSet.Add(unitController);
         unitIn.Squad = this;
+    
+        ((TaggableEntity)unitIn.C_Controller_Unit.C_Entity).TagEntity(new GroupTag(this, unitIn));
+    }
+
+    public void RemoveSquadMember(GroupUnitMovement unitIn)
+    {
+        C_Squad_List.Remove(unitIn);
+        C_Squad_HashSet.Remove(unitIn);
+        C_SquadControllers_HashSet.Remove(unitIn.C_Controller_Unit);
+
+        if (C_Squad_HashSet.Count == 0)
+        {
+            LeaderUnit = null;
+            return;
+        }
+
+        if (unitIn == LeaderUnit)
+        {
+            LeaderUnit = C_Squad_List[0];
+        }
     }
 
     #region components
@@ -172,7 +202,6 @@ public abstract class GroupManager : Initializer
         {
             g.DistanceThreshold = radiusIn;
         }
-        int a = 0;
     }
 
     protected HashSet<Collider> neighborColliders = new HashSet<Collider>();
@@ -244,3 +273,20 @@ public abstract class GroupManager : Initializer
     protected new Transform transform;
     #endregion
 }
+
+public class GroupTag : I_EntityTag
+{
+    private GroupManager squad;
+    private GroupUnitMovement taggedEntity_Movement;
+    public GroupTag(GroupManager squadIn, GroupUnitMovement entityIn)
+    {
+        squad = squadIn;
+        taggedEntity_Movement = entityIn;
+    }
+
+    public void TagAction()
+    {
+        squad.RemoveSquadMember(taggedEntity_Movement);
+    }
+}
+   

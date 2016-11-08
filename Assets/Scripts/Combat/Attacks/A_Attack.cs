@@ -11,6 +11,7 @@ public abstract class A_Attack
     public AttackMethod MethodOfAttack { get; protected set; }
     public WeaponType TypeOfWeapon { get { return AttackingWeapon.TypeOfWeapon; } }
     public CombatModifierHandler AttackModifiers { get; protected set; }
+    public string AttackName { get; protected set; }
 
     public bool CanAutoAttack { get; protected set; }
 
@@ -35,9 +36,11 @@ public abstract class A_Attack
         attackerLayer = attackingEntity.Owner_C_Controller.C_AttachedGameObject.layer;
         CanAutoAttack = false;
         AttackDuration = 1f;
+
+        AttackName = "GOD SMITE";
     }
     
-    public A_Attack(I_Entity attackingEntityIn, AttackMethod methodIn, Weapon weaponIn, float durationIn)
+    public A_Attack(I_Entity attackingEntityIn, AttackMethod methodIn, Weapon weaponIn, float durationIn, string attackNameIn)
     {
         attackingEntity = attackingEntityIn;
         MethodOfAttack = methodIn;
@@ -45,13 +48,16 @@ public abstract class A_Attack
         AttackingWeapon = weaponIn;
         attackerLayer = attackingEntity.Owner_C_Controller.C_AttachedGameObject.layer;
         AttackDuration = durationIn;
+        AttackName = attackNameIn;
     }
 
     public void DoAttack()
     {
+        if (AttackInProgress)
+            return;
         AttackingWeapon.Attacking = true;
         OnAttackStart();
-        Timer.Register(AttackDuration, () => { ApplyAttack(); OnAttackFinish(); }, null, false, false, null);
+        Timer.Register(AttackDuration, () => { ApplyAttack(); OnAttackFinish(); }, null, false, false, AttackingWeapon.AttackTimerKiller);
     } 
 
     protected abstract void ApplyAttack();

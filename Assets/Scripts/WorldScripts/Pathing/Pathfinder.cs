@@ -110,8 +110,8 @@ public class Pathfinder : MonoBehaviour
 
         HashSet<Node> closed = new HashSet<Node>();
         SearchNode current, searchStart, temp;
-        
-        if(open == null)
+
+        if (open == null)
             open = new PriorityQueue<SearchNode, int>(WorldManager._WORLD.WorldNodeCount());
         else
             open.ResetQueue();
@@ -135,7 +135,7 @@ public class Pathfinder : MonoBehaviour
                 c.PathObj.AlgorithmTime = timer.ElapsedMilliseconds;
                 //UnityEngine.Debug.Log("path found");
                 closed = null;
-                current = null;                
+                current = null;
                 return;
             }
 
@@ -158,6 +158,7 @@ public class Pathfinder : MonoBehaviour
                         {
                             c.PathObj.setPath(null);
                             c.PathObj.pathFailed = true;
+                            UnityEngine.Debug.Log("PATH FUCKED count: " + count);
                             return;
                         }
                 }
@@ -168,6 +169,7 @@ public class Pathfinder : MonoBehaviour
             UnityEngine.Debug.Log("PATH NEVER FOUND, count: " + count);
             c.PathObj.pathFailed = true;
             c.PathObj.setPath(null);
+            c.PathObj.impossiblePath = true;
         }
     }
 

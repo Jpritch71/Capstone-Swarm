@@ -20,11 +20,12 @@ public class Order_SqaudMovement : A_SquadOrder
     {
         squad.MoveToPosition(orderedPosition);
         squad.Start_NormalMovement();
-        Debug.Log(ToString() + " Acction Execute.");
+        //Debug.Log(ToString() + " Acction Execute.");
     }
 
     protected override bool DoComplete()
     {
+        squad.C_GridMovement.PathObj.impossiblePath = false;
         return OrderSatisfied();
     }
 

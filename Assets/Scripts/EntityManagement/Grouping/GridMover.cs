@@ -16,7 +16,7 @@ public class GridMover : A_GridMover
         GridMovement();
     }
 
-    public override void TargetNodeReached()
+    public override void TargetNodeReachedWork()
     {
         Moving = false;
     }

@@ -4,7 +4,7 @@ using System.Collections;
 public interface I_Sight
 {
     TaggableEntity Target { get; }
-    float AggressionRange { get; set; }
+    float TrackingRange { get; set; }
     float DistanceToTarget();
     bool TargetAcquired { get; }
 

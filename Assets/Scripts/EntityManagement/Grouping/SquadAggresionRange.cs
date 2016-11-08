@@ -33,14 +33,14 @@ public class SquadAggresionRange : Initializer, I_Sight
         if (!TargetAcquired)
             return;
         Debug.DrawLine(targetPos, ownerPos, Color.red);
-        if (DistanceToTarget() > AggressionRange * 1.15f)
+        if (DistanceToTarget() > TrackingRange * 1.15f)
         {
             ClearTarget();
         }
     }
 
     protected float aggressionRange;
-    public float AggressionRange
+    public float TrackingRange
     {
         get { return aggressionRange; }
         set

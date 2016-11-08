@@ -41,5 +41,8 @@ public enum Flags
     WorldObjects = (1 << 8) | (1 << 9) | (1 << 13),
     Obstacles = (1 << 13),
     Entities = (1 << 11) | (1 << 12),
-    EntityUtilities = (1 << 10)
+    Enemy = (1 << 12),
+    Player = (1 << 11),
+    EntityUtilities = (1 << 10),
+    Projectile = (1 << 15)
 }

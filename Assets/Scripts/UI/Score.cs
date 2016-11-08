@@ -4,7 +4,7 @@
 
     private Score()
     {
-
+        AddScore(0);
     }
 
     private static Score instance;
@@ -23,6 +23,12 @@
     public void AddScore(int scoreIn)
     {
         score += scoreIn;
-        SARSiteUI._Instance.scoreString = "" + score;
+        SARSiteUI._Instance.s_score = "Score: {" + score + "}";
+    }
+
+    public void ResetScore()
+    {
+        score = 0;
+        SARSiteUI._Instance.s_score = "Score: {" + score + "}";
     }
 }

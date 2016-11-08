@@ -9,13 +9,16 @@ public class MeleeWeapon : Weapon
 
     }
 
-    public MeleeWeapon(Transform weaponObjectIn, WeaponType weaponTypeIn, float rangeIn, string nameIn, int soulsIn) : base(weaponObjectIn, weaponTypeIn, rangeIn, nameIn, soulsIn)
+    public MeleeWeapon(WeaponContainer containerIn, MonoBehaviour attackTimerKillerIn,
+                        Transform weaponObjectIn, WeaponType weaponTypeIn, float rangeIn,
+                                                    string nameIn, int soulsIn, float powerIn)
+        : base(containerIn, attackTimerKillerIn, weaponObjectIn, weaponTypeIn, rangeIn, nameIn, soulsIn, powerIn)
     {
 
     }
 
     public override Collider[] AffectedColliders()
     {
-        return Physics.OverlapSphere(AttackPoint, .5f, WorldManager.entityFlag, QueryTriggerInteraction.Collide);
+        return Physics.OverlapSphere(AttackPoint, WeaponRange, WorldManager.entityFlag, QueryTriggerInteraction.Collide);
     }
 }

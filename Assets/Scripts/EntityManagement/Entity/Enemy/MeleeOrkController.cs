@@ -24,8 +24,9 @@ public class MeleeOrkController : OrkUnitController
     public override void LoadStats()
     {
         C_Entity = new OrkEntity(this, 100f, 1);
-        MeleeWeapon OrkAxe = new MeleeWeapon(weapon, Combat.WeaponType.Axe, 1f, "Staff Axe", 0);
-        C_Entity.AttackManager.AddWeapon(OrkAxe.Unique_ID, OrkAxe);
-        OrkAxe.AddAttack(0, new MeleeAttack(C_Entity, OrkAxe, 3f));       
+        MeleeWeapon OrkAxe = new MeleeWeapon(C_Entity.WeaponManager, C_Entity.C_MonoBehavior, weapon, Combat.WeaponType.Axe,
+                                                2.5f, "Staff Axe", 0, 100f);
+        C_Entity.WeaponManager.AddWeapon(OrkAxe.Unique_ID, OrkAxe);
+        OrkAxe.AddAttack(0, new MeleeAttack(C_Entity, OrkAxe, 2f, "Axe Strike"));       
     }
 }

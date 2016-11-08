@@ -21,14 +21,12 @@ public abstract class SquadController : GroupManager
 
     //protected HashSet<int> TargetsToHunt;
 
-    
-
     // Use this for initialization
     protected override void InitAwake()
     {
         base.InitAwake();
-        C_Movement = GetComponent<A_GridMover>();
         C_GroupManager = GetComponent<GroupManager>();
+        C_Movement = GetComponent<A_GridMover>();       
         orders = new Queue<A_SquadOrder>();
 
         //TargetsToHunt = new HashSet<int>();
@@ -41,7 +39,7 @@ public abstract class SquadController : GroupManager
     {
         base.InitStart();
         C_GridMovement.BaseSpeed = 9f;
-        C_AggresionSphere.AggressionRange = 10f;
+        C_AggresionSphere.TrackingRange = 10f;
         //LoadStats();
     }
 
@@ -122,13 +120,13 @@ public abstract class SquadController : GroupManager
 
     public void AddOrder(A_SquadOrder orderIn)
     {
-        Debug.Log(orderIn);
-        if (orders.Count == 0 && CurrentOrder == null)
+        if (CurrentOrder == null)
         {
-            CurrentOrder = orderIn;
+            if(orderIn.OrderValidation())
+                CurrentOrder = orderIn;
             return;
         }
-        orders.Enqueue(orderIn);       
+        orders.Enqueue(orderIn);
     }
 
     public void OrderExited(bool previousOrderCompleted)
@@ -138,7 +136,7 @@ public abstract class SquadController : GroupManager
             EntityTracker.KillSignaler();
             EntityTracker = null;
         }
-        if (orders.Count > 0)
+        while (orders.Count > 0)
         {
             A_SquadOrder nextOrder = orders.Dequeue();
             var a = nextOrder.OrderValidation();
@@ -149,6 +147,11 @@ public abstract class SquadController : GroupManager
             }
         }
         CurrentOrder = null;
+    }
+
+    public void CancelOrder()
+    {
+        CurrentOrder.CancelOrder();
     }
 
     //public void CancelOrder()
@@ -173,7 +176,7 @@ public abstract class SquadController : GroupManager
             C_GridMovement = (A_GridMover)value;
         }
     }
-    public A_GridMover C_GridMovement { get; private set; }
+    public A_GridMover C_GridMovement { get; protected set; }
 
     public GroupManager C_GroupManager { get; protected set; }
 

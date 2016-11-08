@@ -56,6 +56,7 @@ public class S_Squad_Idle : S_SquadState
 
     public override void Execute()
     {
+        //Debug.Log("idling order: " + squad.CurrentOrder);
         if (squad.CurrentOrder != null && !squad.CurrentOrder.OrderStarted)
         {
             if (squad.CurrentOrder.TypeOfOrder == A_SquadOrder.OrderType.Movement)
@@ -78,8 +79,7 @@ public class S_Squad_Idle : S_SquadState
         {
             if (squad.C_AggresionSphere.TargetAcquired)
             {
-                Debug.Log("Add Attack order");
-                squad.AddOrder(new Order_SquadAttack(squad, false, squad.C_AggresionSphere.Target));
+                squad.AddOrder(new Order_SquadAttack(squad, squad.C_AggresionSphere.Target));
             }
         }
     }
@@ -114,10 +114,6 @@ public abstract class S_SquadOrderState : S_SquadState
     {
         if(order.OrderCancelled || order.OrderSatisfied())
         {
-            if(order.OrderCancelled)
-            {
-                int x = 0;
-            }
             SetControllerState(new S_Squad_Idle(squad));
             return;
         }
@@ -161,10 +157,15 @@ public class S_Squad_OrderMove : S_SquadOrderState
 
     protected override void OrderUpdate()
     {
+        //Debug.Log("Path Imossible: " + squad.C_GridMovement.PathObj.impossiblePath);
         if(order.OrderSatisfied())
         {
             SetControllerState(new S_Squad_Idle(squad));
             return;
+        }
+        if(squad.C_GridMovement.PathFailed || squad.C_GridMovement.PathObj.impossiblePath)
+        {
+            order.CancelOrder();
         }
     }
 }
@@ -182,11 +183,6 @@ public class S_Squad_Retaliate : S_SquadOrderState
 
     protected override void OrderUpdate()
     {
-        if (order.OrderSatisfied() || squad.OrderWaiting)
-        {
-            SetControllerState(new S_Squad_Idle(squad));
-            return;
-        }
         if (squad.C_AggresionSphere.TargetAcquired && attackOrder.TargetEntity == squad.C_AggresionSphere.Target)
         {
             if(!squad.AttackMode)
@@ -196,7 +192,14 @@ public class S_Squad_Retaliate : S_SquadOrderState
         }
         else
         {
-            SetControllerState(new S_Squad_Idle(squad));
+            squad.CancelOrder();
+            return;
+        }
+
+        if (squad.OrderWaiting)
+        {
+            squad.CancelOrder();
+            return;
         }
     }
 }
@@ -215,10 +218,10 @@ public class S_Squad_SearchAndDestroy : S_SquadOrderState
     {
         if (squad.C_AggresionSphere.TargetAcquired)
         {
-            if (!squad.AttackMode)
-            {
+            //if (!squad.AttackMode)
+            //{
                 ExecuteBlip(new Blip_Squad_UnitsAttack(squad));
-            }
+            //}
         }
         else
         {

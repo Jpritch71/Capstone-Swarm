@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using Combat;
 
-public abstract class TaggableEntity : Entity
+public abstract class TaggableEntity : Entity, I_VelocityComponent
 {
     private List<I_EntityTag> tags;
     private List<I_EntityTag> Tags
@@ -35,6 +35,22 @@ public abstract class TaggableEntity : Entity
         }
     }
 
+    public bool IsDead
+    {
+        get
+        {
+            return Dead;
+        }
+    }
+
+    public Vector3 Velocity
+    {
+        get
+        {
+            return Owner_C_Controller.C_Movement.Speed * Owner_C_Controller.C_Movement.transform.forward;
+        }
+    }
+
     public void RevokeImmunity()
     {
         //Debug.Log("Revoke");
@@ -48,7 +64,7 @@ public abstract class TaggableEntity : Entity
             C_MonoBehavior._MSG("notKillable");
             return;
         }
-        C_MonoBehavior._MSG("damage incured: " + damageIn + " Integrity remaining: " + Integrity);
+        //C_MonoBehavior._MSG("damage incured: " + damageIn + " Integrity remaining: " + (Integrity - damageIn));
 
         Integrity -= damageIn;
         if (Integrity <= 0)
@@ -72,16 +88,26 @@ public abstract class TaggableEntity : Entity
     {
         Tags.Add(tagIn);
     }
+
+    public void RemoveTag(I_EntityTag tagIn)
+    {
+        Tags.Remove(tagIn);
+    }
 }
+
+
+/// <summary>
+/// /////
+/// </summary>
 
 
 public abstract class Entity : I_Entity
 {
-    public int Unique_ID { get { return Owner_C_Controller.C_AttachedGameObject.GetInstanceID(); } }
+    public virtual int Unique_ID { get { return Owner_C_Controller.C_AttachedGameObject.GetInstanceID(); } }
 
-    public WeaponContainer AttackManager { get; protected set; }
+    public WeaponContainer WeaponManager { get; protected set; }
 
-    public Vector3 Pos
+    public virtual Vector3 Pos
     {
         get
         {
@@ -116,13 +142,13 @@ public abstract class Entity : I_Entity
 
     public Entity()
     {
-        AttackManager = new WeaponContainer();
+        WeaponManager = new WeaponContainer();
         DefenseModifiers = new CombatModifierHandler();
     }
 
     public Entity(I_Controller ownerIn)
     {
-        AttackManager = new WeaponContainer();
+        WeaponManager = new WeaponContainer();
         Owner_C_Controller = ownerIn;
         Owner_C_Controller.C_AttachedGameObject.AddComponent<Entity_MonoBehaviour>();
 
@@ -153,7 +179,7 @@ public abstract class Entity : I_Entity
 
         Killable = false;
         InitializeIntegrity(baseIntegrityIn);
-        AttackManager = new WeaponContainer();
+        WeaponManager = new WeaponContainer();
     }
 
     protected void InitializeIntegrity(float initialBaseIntegrity)
@@ -168,8 +194,14 @@ public abstract class Entity : I_Entity
         Integrity = BaseIntegrity;
     }
 
+    public void AddIntegrity(float integrityIn)
+    {
+        Integrity = Mathf.Clamp(Integrity + integrityIn, Integrity, BaseIntegrity);
+    }
+
     public abstract void IncurDamage(float damageIn);
     public abstract void DeathAction();
+    public abstract void UpdateAction();
 
     public I_Controller Owner_C_Controller { get; protected set; }
 
@@ -199,5 +231,15 @@ public class Entity_MonoBehaviour : MonoBehaviour
     public void _MSG(object o)
     {
         print(o);
+    }
+
+    void Update()
+    {
+
+    }
+
+    public void DestroySelf()
+    {
+        Destroy(this.gameObject);
     }
 }

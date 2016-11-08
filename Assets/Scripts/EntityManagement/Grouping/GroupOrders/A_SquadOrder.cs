@@ -17,6 +17,8 @@ public abstract class A_SquadOrder
 
     protected SquadController squad;
 
+    protected Timer timeoutTimer;
+
     public A_SquadOrder(OrderType typeIn, SquadController squadIn, bool interruptIn)
     {
         TypeOfOrder = typeIn;
@@ -46,7 +48,7 @@ public abstract class A_SquadOrder
 
     public void CancelOrder()
     {       
-        squad.OrderExited(DoComplete());
+        //squad.OrderExited(DoComplete());
         OrderCancelled = true;
     }
 

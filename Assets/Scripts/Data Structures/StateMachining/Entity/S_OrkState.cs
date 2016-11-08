@@ -24,9 +24,14 @@ public abstract class S_OrkState : I_State
         ownerOrk.C_StateMachine.SetCurrentState(stateIn);
     }
 
-    protected void ReturnToPreviousState()
+    protected void StartPreviousState()
     {
         ownerOrk.C_StateMachine.StartPreviousState();
+    }
+
+    protected void ExecuteBlip(A_Blip blipIn)
+    {
+        ownerOrk.C_StateMachine.GoIntoBlip(blipIn);
     }
 
     public abstract void Execute();
@@ -57,11 +62,12 @@ public class S_Ork_Running : S_OrkState
         if (!ownerOrk.C_Movement.Moving)
         {
             SetControllerState(new S_Ork_Idle(ownerOrk));
+            return;
         }
-        if (ownerOrk.C_Movement.AttackMode)
+        if (ownerOrk.C_Movement.AttackMode && !ownerOrk.C_Entity.WeaponManager.ActiveWeapon.Attacking)
         {
-            //if (ownerOrk.C_Movement.DistanceToTarget <= ownerOrk.C_Entity.AttackManager.ActiveWeapon.WeaponRange)
-            //    SetControllerState(new S_Ork_Attack(ownerOrk));
+            if (ownerOrk.C_Movement.DistanceToTarget <= ownerOrk.C_Entity.WeaponManager.ActiveWeapon.WeaponRange)
+                SetControllerState(new S_Ork_Attack(ownerOrk));
         }
     }
 
@@ -94,10 +100,10 @@ public class S_Ork_Idle : S_OrkState
             SetControllerState(new S_Ork_Running(ownerOrk));
             return;
         }
-        if(ownerOrk.C_Movement.AttackMode)
+        if(ownerOrk.C_Movement.AttackMode && !ownerOrk.C_Entity.WeaponManager.ActiveWeapon.Attacking)
         {
-            //if (ownerOrk.C_Movement.DistanceToTarget <= ownerOrk.C_Entity.AttackManager.ActiveWeapon.WeaponRange)
-            //    SetControllerState(new S_Ork_Attack(ownerOrk));
+            if (ownerOrk.C_Movement.DistanceToTarget <= ownerOrk.C_Entity.WeaponManager.ActiveWeapon.WeaponRange)
+                SetControllerState(new S_Ork_Attack(ownerOrk));
         }
     }
 
@@ -121,16 +127,17 @@ public class S_Ork_Attack : S_OrkState
 
     public override void Execute()
     {
-        if (ownerOrk.C_Entity.AttackManager.ActiveWeapon.ActiveAttack.AttackCompleted)
+        if (ownerOrk.C_Entity.WeaponManager.ActiveWeapon.ActiveAttack.AttackCompleted)
         {
-            ReturnToPreviousState();
+            //StartPreviousState();
+            SetControllerState(new S_Ork_Idle(ownerOrk));
         }
     }
 
     public override void OnStart()
     {
         ownerOrk.AnimController.StartAttack();
-        ownerOrk.C_Entity.AttackManager.ActiveWeapon.DoAttack();
+        ownerOrk.C_Entity.WeaponManager.ActiveWeapon.DoAttack();
         ownerOrk.C_Movement.PauseMoving();
     }
 

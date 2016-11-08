@@ -24,8 +24,8 @@ public class PlayerGroupManager : SquadController
 
         gridedWeight = 5;
 
-        SetVolumeRadius(.8f);
-        volumeCollider.radius = 1f;
+        SetVolumeRadius(1.5f);
+        volumeCollider.radius = 1.5f;
 
         playerUnit.SquadSendInit();
 
@@ -40,6 +40,8 @@ public class PlayerGroupManager : SquadController
 
     protected override void UpdateGroup()
     {
+        if (GroupDead)
+            return;
         deltaMovement = transform.position - lastPos;
 
         playerUnit.MovementOrders += deltaMovement;

@@ -4,6 +4,13 @@ using System;
 
 public abstract class GroupUnitController : Initializer, I_Controller
 {
+    public virtual I_Entity Target
+    {
+        get
+        {
+            return C_SquadController.C_AggresionSphere.Target;
+        }
+    }
     public abstract int EntityLayer { get; }
     protected override void InitAwake()
     {

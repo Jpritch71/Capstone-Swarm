@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
-public class TowerController : MonoBehaviour, I_LicensedToKill
+public class TowerController : Initializer, I_Controller, I_LicensedToKill
 {
     protected float targetingRange;
     protected bool targetInTrackingArea = false;
@@ -19,12 +20,21 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
 
     protected bool active = true;
 
-    void Awake ()
-    {
-        targets = new List<GameObject>();
+    public GameObject roundModel;
 
-        turretBarrel = transform.Find("BARREL");
-        projectilePoint = transform.Find("POINT");
+    public I_Entity Target
+    {
+        get
+        {
+            I_Entity en = null;
+            EntityManager.GetEntityByCollider(CurrentTarget.GetComponent<Collider>(), ref en);
+            return en;
+        }
+    }
+
+    protected override void InitAwake ()
+    {
+        targets = new List<GameObject>();       
         towerWeapon = GetComponent<WeaponPlatform>();
         towerWeapon.Authorizer = this;
 
@@ -33,23 +43,29 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
         AmmoBay ammo;
         WeaponManager.AmmoTag ammoTag;     
 
-
         ammoTag = WeaponManager.AmmoTag.Bullet;
-        round.ammoModel = null;// GameObject.Find("PlayerControlledGun").GetComponent<PlayerController>().GetProjectileModel(ammoTag);
+        round.ammoModel = roundModel;// GameObject.Find("PlayerControlledGun").GetComponent<PlayerController>().GetProjectileModel(ammoTag);
         round.projectileType = "basic_projectile";
-        ammo = new AmmoBay(round, ammoTag, new object[] { 3f, 15f });
-        wep = new WeaponStats(100, 1, .01f, .01f, 3f, .051f, true, 1.5f, ammo);
+        ammo = new AmmoBay(round, ammoTag, new object[] { 200f, 35f });
+        wep = new WeaponStats(100, 2, .25f, 1.5f, 15f, .051f, true, 1.5f, ammo);
         towerWeapon.AddWeapon_Affix(WeaponManager.WeaponTag.AutoCannon, wep);
 
         towerWeapon.AddAmmo(1000);
 
-        turretBarrel = transform.Find("Turret");
-        projectilePoint = turretBarrel.transform.Find("TargetPoint");
+        turretBarrel = transform.Find("TurretPivot");
+        projectilePoint = turretBarrel.Find("AttackPoint");
 
         turnSpeed = 5f;
+    }
 
+    protected override void InitStart()
+    {
+        C_Entity = new PlayerStructure(this, 500f, 1);
 
-        SetTargettingRange(15f);
+        C_AttachedGameObject.transform.Find("VisionObject").gameObject.AddComponent<TowerDetectionSphere>();
+        C_TowerTrackingSphere = C_AttachedGameObject.transform.Find("VisionObject").gameObject.GetComponent<TowerDetectionSphere>();
+        C_TowerTrackingSphere.TrackingRange = 25f;
+        SetTargettingRange(25f);
     }
 
     protected void SetTargettingRange(float rangeIn)
@@ -69,6 +85,12 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
 
     void FixedUpdate()
     {
+        if (C_StateMachine != null)
+            C_StateMachine.ExecuteUpdate();
+
+        if (C_Entity.Dead)
+            return;
+
         if (CurrentTarget != null)
         {
             
@@ -81,9 +103,14 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
     {
         if (CurrentTarget != null && attacking)
         {
+            if (Vector3.Distance(projectilePoint.position, CurrentTarget.transform.position) > targetingRange)
+            {
+                StopAttacking();
+                return;
+            }
             if (weaponReady)
             {
-                print("start firing");
+                //print("start firing");
                 weaponReady = false;
                 towerWeapon.StartFiring(() => { weaponReady = true; });
             }
@@ -103,21 +130,24 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
     }
 
     #region TurretTracking
+    private Quaternion lookRot;
     protected void RotateToTarget()
     {
         if (CurrentTarget == null)
             return;
-        facingDirection = CurrentTarget.transform.position - turretBarrel.position;
+        facingDirection = turretBarrel.position - CurrentTarget.transform.position;
+        turretBarrel.rotation = Quaternion.LookRotation(facingDirection, Vector3.up);
 
-        float angle = Mathf.Atan2(facingDirection.y, facingDirection.x) * Mathf.Rad2Deg;
-        Quaternion rot = Quaternion.AngleAxis(angle - 90f, Vector3.up   );
-        if (!attacking && PointingAtTarget(rot))
+        if (!attacking && PointingAtTarget())
         {
             ReadyToFire();
             return;
         }
-
-        turretBarrel.rotation = Quaternion.Slerp(turretBarrel.rotation, rot, Time.deltaTime * turnSpeed * (trackingTime * 5f));
+        else
+        {
+            var a = Vector3.Dot((turretBarrel.transform.position - CurrentTarget.transform.position), turretBarrel.forward);
+            var i = 1;
+        }
         trackingTime += Time.deltaTime;
     }
 
@@ -147,11 +177,12 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
         }
         return false;
     }
-    protected bool PointingAtTarget(Quaternion rotIn)
+    protected bool PointingAtTarget()
     {
-        if (Mathf.Abs(rotIn.eulerAngles.z - turretBarrel.rotation.eulerAngles.z) <= UnityEngine.Random.Range(.5f, 2f))
-            return true;
-        return false;
+        return Vector3.Dot((turretBarrel.transform.position - CurrentTarget.transform.position), turretBarrel.forward) > .9f;
+        //if (Mathf.Abs(rotIn.eulerAngles.z - turretBarrel.rotation.eulerAngles.z) <= UnityEngine.Random.Range(.5f, 2f))
+        //    return true;
+        //return false;
     }
     #endregion
 
@@ -176,7 +207,12 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
                         return;
                     }
                     curTarget = temp;
-                    TargetVelocityComponent = curTarget.GetComponent<I_VelocityComponent>();
+                    I_Entity en = null;
+                    EntityManager.GetEntityByCollider(curTarget.GetComponent<Collider>(), ref en);
+                    TargetVelocityComponent = ((TaggableEntity)en);
+                    if (en == null)
+                        print("NULL IN THE LIST WHAT THE FUCK");
+                    //TargetVelocityComponent = curTarget.GetComponent<I_VelocityComponent>();
                     trackingTime = 0f;
                 }
                 else
@@ -198,7 +234,9 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
             {
                 trackingTime = 0f;
                 curTarget = targetIn;
-                TargetVelocityComponent = curTarget.GetComponent<I_VelocityComponent>();
+                I_Entity en = null;
+                EntityManager.GetEntityByCollider(curTarget.GetComponent<Collider>(), ref en);
+                TargetVelocityComponent = ((TaggableEntity)en);
             }
             else
             {
@@ -208,8 +246,13 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
                     print("NULL IN THE LIST WHAT THE FUCK");
                 targets.Remove(targets[0]);
                 curTarget = temp;
+                if (curTarget == null)
+                    StopAttacking();
                 print("This object doesn't have its shit together: " + curTarget);
-                TargetVelocityComponent = curTarget.GetComponent<I_VelocityComponent>(); //missing ref exception here }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+                I_Entity en = null;
+                EntityManager.GetEntityByCollider(curTarget.GetComponent<Collider>(), ref en);
+                TargetVelocityComponent = ((TaggableEntity)en);
+                //TargetVelocityComponent = curTarget.GetComponent<I_VelocityComponent>(); //missing ref exception here }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
                 targets.Add(targetIn);
             }
         }
@@ -240,28 +283,59 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
             targetLoc = value;
         }
         get
-        {
-
+        {           
             if (CurrentTarget != null && (TargetVelocityComponent != null && !TargetVelocityComponent.IsDead))
-            {
-                projectileVelocity = towerWeapon.LoadedWeapon.ammo.PeakNextRound().Velocity;
-                _P = projectileVelocity * facingDirection.normalized;
-                _V = TargetVelocityComponent.Velocity * (Vector3.Distance(turretBarrel.position, CurrentTarget.transform.position) / projectileVelocity);
-
-
-                Debug.DrawLine(CurrentTarget.transform.position, targetLoc, Color.green, .1f);
-                targetLoc = CurrentTarget.transform.position - _V;
+            {   
+                targetLoc = CurrentTarget.transform.position;
                 return targetLoc;
+                //projectileVelocity = towerWeapon.LoadedWeapon.ammo.PeakNextRound().Velocity;
+                //_P = projectileVelocity * facingDirection.normalized;
+                //_V = TargetVelocityComponent.Velocity * (Vector3.Distance(turretBarrel.position, CurrentTarget.transform.position) / projectileVelocity);
+
+
+                //Debug.DrawLine(CurrentTarget.transform.position, targetLoc, Color.green, .1f);
+                //targetLoc = CurrentTarget.transform.position - _V;
+                //return targetLoc;
             }
             else
                 return targetLoc;
         }
     }
 
+    public int EntityLayer
+    {
+        get
+        {
+            return (int)Flags.Player;
+        }
+    }
+
+    public GroupUnitMovement C_Movement
+    {
+        get
+        {
+            return null;
+        }
+    }
+
+    public I_Sight C_TowerTrackingSphere { get; protected set; }
+
+    public I_Entity C_Entity
+    {
+        get; protected set;
+    }
+
+    public StateMachine C_StateMachine
+    {
+        get; protected set;
+    }
+
     protected bool CheckTarget()
     {
-        if ((CurrentTarget == null || TargetVelocityComponent.IsDead) && attacking)
+        if ((CurrentTarget == null) && attacking)//) || TargetVelocityComponent.IsDead) && attacking)
         {
+            if (TargetVelocityComponent == null)
+                return false;
             StopAttacking();
             return true;
         }
@@ -270,39 +344,31 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
     #endregion   
 
     protected int trackedTargets = 0;
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnt1er(Collider other)
     {
-        if (other.gameObject.layer == 8)
+        print("enter");
+        int bitwise = (1 << other.gameObject.layer) & ((int)Flags.Enemy);
+        if (bitwise == 0)
         {
             print("asteroid in");
-            var t = GetComponent<TaggableEntity>();
-            if (t != null)
-            {
-                trackedTargets++;
-                if (trackedTargets == 1)
-                {
-                    //StopCoroutine(ScanForTargets());
-                    StartCoroutine(ScanForTargets());
-                }                
-                new T_TowerTracking(this, t);
-            }
-            //CurrentTarget = other.gameObject;
+            //var t = GetComponent<TaggableEntity>();
+            //if (t != null)
+            //{
+            //    trackedTargets++;
+            //    if (trackedTargets == 1)
+            //    {
+            //        //StopCoroutine(ScanForTargets());
+            //        //StartCoroutine(ScanForTargets());
+            //    }                
+            //    new T_TowerTracking(this, t);
+            //}
+            CurrentTarget = other.gameObject;
         }
     }
 
     public void StopTrackingTarget(TaggableEntity entityIn)
     {
-        trackedTargets--;
 
-        if (trackedTargets <= 0)
-        {
-            targetInTrackingArea = false;
-        }
-
-        if(trackedTargets < 0)
-        {
-            throw new System.ArgumentOutOfRangeException();
-        }
     }
 
     Collider[] collidersOnRadar;
@@ -322,6 +388,11 @@ public class TowerController : MonoBehaviour, I_LicensedToKill
             yield return new WaitForSeconds(.15f);
         }
     }
+
+    public void LoadStats()
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public class T_TowerTracking : I_EntityTag
@@ -331,6 +402,7 @@ public class T_TowerTracking : I_EntityTag
 
     public T_TowerTracking(TowerController controllerIn, TaggableEntity entityIn)
     {
+        entity = entityIn;
         trackingTower = controllerIn;
         entityIn.TagEntity(this);
     }

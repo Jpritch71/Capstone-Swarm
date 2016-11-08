@@ -7,5 +7,5 @@ public interface I_VelocityComponent
     /// bool to check if the Entity associated with this velocity component is alive
     /// </summary>
     bool IsDead { get; }
-    Vector2 Velocity { get; }
+    Vector3 Velocity { get; }
 }

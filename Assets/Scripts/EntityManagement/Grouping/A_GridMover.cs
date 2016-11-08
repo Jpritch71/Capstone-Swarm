@@ -43,7 +43,22 @@ public abstract class A_GridMover : Initializer, I_Movement
             canMove = value;
         }
     }
-    public virtual bool Moving { get { return moving; } protected set { moving = value; } }
+    public virtual bool Moving
+    {
+        get { return moving; }
+        protected set
+        {
+            moving = value;
+            if(moving)
+            {
+                thruster.isKinematic = false;
+            }
+            else
+            {
+                thruster.isKinematic = true;
+            }
+        }
+    }
     protected bool targetReached = false;
 
 	public A_GridMover () 
@@ -154,6 +169,8 @@ public abstract class A_GridMover : Initializer, I_Movement
         }
         lastPathStart = locationNode;
         findingPath = true;
+        pathObj.pathFailed = false;
+        //pathObj.impossiblePath = false;
 
         //nodeTraveledInPath = 0;
         if (workingNode.Walkable)
@@ -179,7 +196,7 @@ public abstract class A_GridMover : Initializer, I_Movement
                     {
                         print("exit loop | _" + pathObj.pathFailed + "_" + _CancelPath + "_");
                         findingPath = false;
-                        pathObj.pathFailed = false;
+                        //pathObj.pathFailed = false;
                         _CancelPath = false;                       
                         yield break;
                     }
@@ -207,12 +224,19 @@ public abstract class A_GridMover : Initializer, I_Movement
                     Moving = true;
                 }
                 else if(wayPointNodes.Count <= 0)
-                    TargetNodeReached();
+                    TargetNodeReachedWork();
             }
             workingNode = null;
         }
         findingPath = false;
 	}
+    public bool PathFailed
+    {
+        get
+        {
+            return pathObj.pathFailed;
+        }
+    }
 
     /*
      * returns the current node in this character's path if the path exists
@@ -248,6 +272,18 @@ public abstract class A_GridMover : Initializer, I_Movement
         StartCoroutine(_CancelPathTisFrame()); //Ensures the path is cancelled this frame, then clears the flag
     }
 
+    public void DisallowMovement()
+    {
+        StopMoving();
+        PauseMoving();
+    }
+
+    public void AllowMovement()
+    {
+        ResumeMoving();
+    }
+
+
     protected virtual void GridMovement()
     {
         //if we have a valid path
@@ -262,11 +298,11 @@ public abstract class A_GridMover : Initializer, I_Movement
                 {
                     wayPointNodes.RemoveAt(0);
                     if (wayPointNodes.Count <= 0 && CurrentTargetNode == targetNode)
-                        TargetNodeReached();
+                        TargetNodeReachedWork();
                     CurrentTargetNode = null;
                 }
-                      
-                hits = Physics.SphereCastAll(Pos + (unitCollider.bounds.extents.x * transform.forward) + (Vector3.up * unitCollider.bounds.size.y), unitCollider.radius * .1f, Vector3.down, 5f, (1 << 8));
+
+                hits = Physics.SphereCastAll(Pos + (unitCollider.bounds.extents.x * transform.forward) + (Vector3.up * 5f), unitCollider.radius * .1f, Vector3.down, 10f, (1 << 8));
                 if (hits.Length > 0)
                 {
                     hit = hits[0];
@@ -286,6 +322,23 @@ public abstract class A_GridMover : Initializer, I_Movement
                 CurrentTargetNode = wayPointNodes[0];
                 targetPositionOFFSET = OffsetPosition(CurrentTargetNode.Pos);
             }
+        }
+        else
+        {
+            hits = Physics.SphereCastAll(Pos + (Vector3.up * 5f), unitCollider.radius * .1f, Vector3.down, 10f, (1 << 8));
+            if (hits.Length > 0)
+            {
+                hit = hits[0];
+                for (int x = 1; x < hits.Length; x++)
+                {
+                    if (hit.point.y < hits[x].point.y)
+                        hit = hits[x];
+                }
+                GroundPosY = hit.point.y;
+            }
+            else
+                Debug.Log("Where is the ground?");
+            Pos = new Vector3(Pos.x, GroundPosY, Pos.z);
         }
         pos = Pos;
     }
@@ -350,7 +403,7 @@ public abstract class A_GridMover : Initializer, I_Movement
         get { return targetReached; }
     }
 
-    public abstract void TargetNodeReached();
+    public abstract void TargetNodeReachedWork();
     #endregion
 
 	public float BaseSpeed
@@ -420,7 +473,17 @@ public abstract class A_GridMover : Initializer, I_Movement
     }
     protected new Transform transform;
 
-    public float GroundPosY { get; protected set; }
+    public float GroundPosY
+    {
+        get
+        {
+            return groundYPos;
+        }
+        protected set
+        {
+            groundYPos = value;
+        }
+    }
 
     #region components
     public Rigidbody thruster { get; set; }
